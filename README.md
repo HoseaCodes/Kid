@@ -11,10 +11,42 @@
     <img src="https://i.imgur.com/RF2Zlgb.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">Project Name</h3>
+  <h3 align="center">KidverCity</h3>
 
   <p align="center">
-    Short project description or tagline.
+     The Kidvercity website is an online platform dedicated to providing a safe and educational environment for kids to learn and have fun.
+    
+  ## Features
+
+  - **Educational Content**: Kidvercity offers a wide range of educational resources, including interactive lessons, quizzes, and activities, designed to engage and stimulate young minds.
+
+  - **Entertainment**: Keep children entertained with a variety of games, videos, and creative activities that are both fun and educational.
+
+  - **Parental Controls**: Kidvercity understands the importance of safety online. Parental controls and monitoring features are available to ensure a secure and controlled environment for kids.
+
+  - **Responsive Design**: The website is designed to be responsive, ensuring a seamless experience across various devices, including desktops, tablets, and mobile phones.
+  
+  - **Virtual Classroom**: Host live interactive classes where teachers can engage with students in real-time, share screens, and use virtual whiteboards for dynamic lessons.
+
+  - **Scheduled Sessions**: Plan and schedule classes in advance, allowing students and teachers to know when to log in for their lessons, creating a structured learning environment.
+
+  - **Breakout Rooms**: Divide the class into smaller groups for focused discussions, group activities, or one-on-one assistance, enabling personalized attention for students.
+
+  - **Screen Sharing**: Teachers can share educational materials, presentations, and interactive content, ensuring that kids have access to visual aids and resources during lessons.
+
+  - **Recording Sessions**: Record classes for students who may have missed a live session, enabling them to catch up on their own time and reinforcing the learning experience.
+
+  - **Chat and Q&A**: Enable chat features for students to ask questions, seek clarification, or participate in discussions, fostering engagement and interactivity.
+
+  - **Polls and Quizzes**: Conduct quick polls and quizzes to assess student comprehension, track progress, and make learning fun and interactive.
+
+  - **Security Measures**: Implement security features to ensure a safe online learning environment, including password protection and waiting rooms for class entry control.
+
+  - **Integration**: Seamlessly integrate Zoom with your app, allowing students to access classes directly from your platform, enhancing user convenience and engagement.
+
+  - **Attendance Tracking**: Monitor student attendance and participation in classes, helping teachers and parents stay informed about the child's progress.
+
+
     <br />
     <a href="https://github.com/your_username/repo_name"><strong>Explore the docs »</strong></a>
     <br />
@@ -56,10 +88,10 @@ Provide a brief description of your project and its purpose. Explain why it's us
 
 List the technologies, frameworks, and libraries that you used in your project.
 
-- [Technology 1](https://example.com)
-- [Technology 2](https://example.com)
-- [Technology 3](https://example.com)
-- [React](https://example.com)
+- [React](https://react.dev/)
+- [Firebase](https://firebase.google.com/)
+- [Chart.js](https://www.chartjs.org/)
+- [OpenAI](https://openai.com/chatgpt)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -122,12 +154,47 @@ See Change Log
 
 Outline the future plans and enhancements you have for the project. You can list completed tasks and upcoming features.
 
-- [x] Feature 1
-- [x] Feature 2
-- [ ] Feature 3
-- [ ] Feature 4
-  - [ ] Sub Feature 1
-  - [ ] Sub Feature 2
+- [ ] Static Site
+  - [ ] Home Page Content
+  - [ ] About Us Page Conent
+  - [ ] Academics Page Content
+  - [ ] Facilities Page Content
+  - [ ] Our Works Page Content
+  - [ ] Student Life Page Content
+  - [ ] Admission and Aid Page Content
+  - [ ] Admin Edit Content On Static Page
+  - [ ] Contact Form 
+  - [ ] Links 
+  - [ ] Animations
+  - [ ] Favicon
+- [ ] Dashboard
+  - [ ] Student
+  - [ ] Teacher
+  - [ ] Admin
+- [ ] Dashboard Profile
+  - [ ] Edit Profile
+- [ ] Assessments
+  - [ ] Ai Quiz
+  - [ ] Track Stats of Assements
+  - [ ] Automatically Add Skills
+- [ ] Suggestions
+  - [ ] Teacher Sugesstions
+  - [ ] Admin Suggestions
+  - [ ] Student Suggestions
+- [ ] Zoom
+  - [ ] Create Meeting
+  - [ ] One on One Meeting
+  - [ ] Schedule Meeting 
+  - [ ] View Pas Recordings
+- [ ] Rewards
+  - [ ] Handle reward points
+  - [ ] Claim gift
+- [ ] Purchase
+  - [ ] Purchase gift
+  - [ ] Pay for tutoring with PayPal
+  - [ ] View Paid Transactions
+  - [ ] View Upcoming Transactions
+  - [ ] Go to Thank you page after a purchase
 
 See the [open issues](https://github.com/your_username/repo_name/issues) for a full list of proposed features and known issues.
 
