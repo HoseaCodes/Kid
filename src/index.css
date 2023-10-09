@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@import url('https://fonts.googleapis.com/css2?family=Grandstander:wght@300;400;500;700&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Manrope&display=swap');
+
+
+@font-face {
+  font-family: 'riffic';
+  src: local('riffic'), url(./assets/fonts/Riffic.ttf) format('truetype');
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: "Grandstander";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
