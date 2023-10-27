@@ -40,14 +40,15 @@ ChartJS.register(
 	Legend
 );
 
-export default function AdminDashboard(props) {
+export default function AdminDashboard({childern}) {
+	console.log(childern)
 	const [user, setUser] = useState({
-		uid: props.user.uid,
-        name: props.user.displayName,
-        phone: props.user.phoneNumber,
-        avatar: props.user.photoURL,
+		// uid: props.user.uid,
+        // name: props.user.displayName,
+        // phone: props.user.phoneNumber,
+        // avatar: props.user.photoURL,
         authProvider: "local",
-        email: props.user.email,
+        // email: props.user.email,
         username: "",
         phone: "",
         isAdmin: false,
@@ -75,23 +76,23 @@ export default function AdminDashboard(props) {
 	const [name, setName] = useState("");
 	const navigate = useNavigate();
 
-	const fetchUserName = async () => {
-		try {
-		const q = query(collection(db, "users"), where("uid", "==", props.user?.uid));
-		const doc = await getDocs(q);
-		const data = doc.docs[0].data();
-		setUser(data)
-		setName(data.name);
-		} catch (err) {
-		console.error(err);
-		alert("An error occured while fetching user data");
-		}
-	};
+	// const fetchUserName = async () => {
+	// 	try {
+	// 	const q = query(collection(db, "users"), where("uid", "==", props.user?.uid));
+	// 	const doc = await getDocs(q);
+	// 	const data = doc.docs[0].data();
+	// 	setUser(data)
+	// 	setName(data.name);
+	// 	} catch (err) {
+	// 	console.error(err);
+	// 	alert("An error occured while fetching user data");
+	// 	}
+	// };
 	
-	useEffect(() => {
-		if (!props.user) return navigate("/login");
-		fetchUserName();
-	}, [props.user]);
+	// useEffect(() => {
+	// 	// if (!props.user) return navigate("/login");
+	// 	// fetchUserName();
+	// }, [props.user]);
 
 	const isStudent = () => {
 		const gradeData = {

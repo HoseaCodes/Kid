@@ -12,7 +12,6 @@ const firebaseConfig = {
   appId: process.env.REACT_APP_FIREBASE_APPID
 };
 
-
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const db = getFirestore(app)
@@ -64,7 +63,9 @@ const sendPasswordReset = async (email) => {
 const logout = () => {
   signOut(auth);
 };
+
 const googleProvider = new GoogleAuthProvider();
+
 const signInWithGoogle = async () => {
   try {
     const res = await signInWithPopup(auth, googleProvider);
@@ -100,8 +101,8 @@ const signInWithGoogle = async () => {
 
 const meetingsRef = collection(db, "meetings");
 
-
 export {
+  app,
   auth,
   db,
   signInWithGoogle,

@@ -1,0 +1,7 @@
+#pending-items > * {
+	text-align: center;
+}
+
+#pending-items .searched-item {
+	margin-bottom: 5px;
+}
