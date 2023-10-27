@@ -27,7 +27,29 @@ import AdminThankyou from "./Admin/AdminThankyou";
 // import JoinMeeting from "./Zoom/JoinMeeting";
 // import Meeting from "./Zoom/Meeting";
 // import Dashboard from "./Zoom/Dashboard";
+
+import Dash from "./Dashboard/Dashboard";
+import StudentCourses from "./Dashboard/StudentCourses";
+import Transaction from "./Dashboard/Transaction";
+import Transactions from "./Dashboard/Transactions";
+import Invoice from "./Dashboard/Invoice";
+import Course from "./Dashboard/Course";
+import Courses from "./Dashboard/Courses";
+import TeacherCourses from "./Dashboard/TeacherCourses";
+import NewCourse from "./Dashboard/NewCourse";
+import Products from "./Dashboard/Products";
+import Cart from "./Dashboard/Cart";
+import NewInvoice from "./Dashboard/NewInvoice";
+import AssignCourse from "./Dashboard/AssignCourse";
+import PendingCourse from "./Dashboard/PendingCourse";
+import PendingCourses from "./Dashboard/PendingCourses";
+import PendingItems from "./Dashboard/PendingItems";
+import ForPayment from "./Dashboard/ForPayment";
+import CompletedItems from "./Dashboard/CompletedItems";
+import ViewStudents from "./Dashboard/ViewStudents";
+import ViewStudent from "./Dashboard/ViewStudent";
 	
+	 
 export {
 	HomeScreen,
 	AboutScreen,
@@ -55,5 +77,25 @@ export {
 	// MyMeetings,
 	// JoinMeeting,
 	// Meeting,
-	// Dashboard
+	// Dashboard,
+	Dash,
+	StudentCourses,
+	TeacherCourses,
+	Transaction,
+	Transactions,
+	Invoice,
+	Course, 
+	Courses,
+	Products,
+	Cart,
+	NewCourse,
+	AssignCourse,
+	PendingCourse,
+	PendingCourses,
+	PendingItems,
+	ForPayment,
+	CompletedItems,
+	NewInvoice,
+	ViewStudent,
+	ViewStudents
 };

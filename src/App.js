@@ -1,16 +1,95 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect, useLayoutEffect } from 'react';
 import "./App.css";
 import * as Screens from "./screens/all";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import ProtectedRoute from "./ProtectedRoute2"
+// import ProtectedRoute from "./ProtectedRoute2"
 import { AuthContext }from './firebaseAuthContext';
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, db, logout } from "./firebase";
+import { auth, db } from "./firebase";
+import { getDoc, doc } from "firebase/firestore";
 
 function App() {
-	const authValue=useContext(AuthContext)
+	const authValue = useContext(AuthContext)
 	const [user, loading, error] = useAuthState(auth);
+    const [isLoggedin, setIsLoggedin] = useState(false);
+	const [checkUser, setCheckUser] = useState(false);
+	const [currentUser, setCurrentUser] = useState({ cart: [] });
+	const [mobile, setMobile] = useState(false);
+	const [windowDimensions, setWindowDimensions] = useState([
+		window.innerWidth,
+		window.innerHeight,
+	]);
 
+	const fetchUser = async () => {
+		try {
+			// console.log(props.user.uid)
+			// const docRef = await getDoc(doc(db, "users", props.user.uid));
+			const docRef = await getDoc(doc(db, "users", "5oZ5ta0mgbZSEqCNXftJ"));
+			if (docRef) {
+				console.log("Document data:", docRef);
+				console.log("Document data:", docRef.data());
+				setCurrentUser(docRef.data())
+			} else {
+				// docSnap.data() will be undefined in this case
+				console.log("No such document!");
+			}
+		} catch (err) {
+		console.error(err);
+		alert("An error occured while fetching user data");
+		}
+	};
+
+	useEffect(() => {
+		// if (!props.user) return navigate("/login");
+		// if (props.user)	
+		fetchUser();
+	}, []);
+
+	const states = {
+		isLoggedin,
+		setIsLoggedin,
+		currentUser,
+		setCurrentUser,
+		windowDimensions,
+		checkUser,
+		setCheckUser,
+		mobile,
+		setMobile,
+		fetchUser
+	};
+
+	function useWindowSize() {
+		const [size, setSize] = useState([0, 0]);
+		useLayoutEffect(() => {
+			function updateSize() {
+				setSize([window.innerWidth, window.innerHeight]);
+			}
+			window.addEventListener("resize", updateSize);
+			updateSize();
+			return () => window.removeEventListener("resize", updateSize);
+		}, []);
+		return size;
+	}
+
+	const [width, height] = useWindowSize();
+
+	useEffect(() => {
+		if (!mobile) {
+			if (parseInt(windowDimensions[0]) <= 1400) {
+				setMobile(true);
+			}
+		} else if (mobile) {
+			if (parseInt(windowDimensions[0]) > 1400) {
+				setMobile(false);
+			}
+		}
+	}, [windowDimensions, mobile]);
+
+	useEffect(() => {
+		setWindowDimensions([width, height]);
+	}, [width, height]);
+
+	console.log(user, authValue)
 	return (
 		<div className="App relative overflow-x-hidden">
 			<BrowserRouter>
@@ -42,13 +121,13 @@ function App() {
 					<Route
 						path="/admission-and-aid"
 						element={<Screens.AdmissionScreen />}
-					/>
+						/>
 
 					{/* Dashboard */}
 
 					{/* <ProtectedRoute redirectTo="/login" path="/dashboard"  
 					element={<Screens.AdminDashboard />} />
-				 */}
+				*/}
 
 				{/* <ProtectedRoute redirectTo="/login" path="/dashboard">
 					
@@ -56,8 +135,31 @@ function App() {
 					
 				</ProtectedRoute> */}
 				
-					<Route path="/dashboard" element={<Screens.AdminDashboard user={user} authValue={authValue} />} /> 
-				
+					<Route path="/dashboard" element={<Screens.AdminDashboard user={user} authValue={authValue} />} /> 	
+					<Route path="/dash" element={<Screens.Dash user={user} authValue={authValue} />} /> 	
+					<Route path="/course/student/:username/all" element={<Screens.StudentCourses {...states} user={user} authValue={authValue} />} /> 	
+					<Route path="/course/teacher/:username/all" element={<Screens.TeacherCourses {...states} user={user} authValue={authValue} />} /> 	
+					<Route path="/course/all" element={<Screens.Courses {...states} user={user} authValue={authValue} />} /> 	
+					<Route path="/course/new" element={<Screens.NewCourse {...states} user={user} authValue={authValue} />} /> 	
+					<Route path="/course/:id" element={<Screens.Course {...states} user={user} authValue={authValue} />} /> 	
+					<Route path="/course/:id/students" element={<Screens.ViewStudents {...states} user={user} authValue={authValue} />} /> 	
+					<Route path="/course/:id/students/:studentusername" element={<Screens.ViewStudent {...states} user={user} authValue={authValue} />} /> 	
+					<Route exact path="/transactions" element={<Screens.Transactions {...states} user={user} authValue={authValue} />} />
+					<Route exact path="/transaction/:id" element={<Screens.Transaction {...states} user={user} authValue={authValue} />} />
+					<Route exact path="/transaction/:id/invoice" element={<Screens.Invoice {...states} user={user} authValue={authValue} />} />
+					<Route exact path="/products" element={<Screens.Products {...states} user={user} authValue={authValue} />} />
+					<Route exact path="/cart" element={<Screens.Cart {...states} user={user} authValue={authValue} />} />
+					<Route exact path="/admin/newinvoice" element={<Screens.NewInvoice {...states} user={user} authValue={authValue} />} />
+					<Route exact path="/admin/assigncourse" element={<Screens.AssignCourse {...states} user={user} authValue={authValue} />} />
+					<Route exact path="/admin/user/:userid/pendingcourse/:courseid" element={<Screens.PendingCourse {...states} user={user} authValue={authValue} />} />
+					<Route exact path="/admin/pendingcourses" element={<Screens.PendingCourses {...states} user={user} authValue={authValue} />} />
+					<Route exact path="/admin/pendingitems" element={<Screens.PendingItems {...states} user={user} authValue={authValue} />} />
+					<Route exact path="/admin/forpayment" element={<Screens.ForPayment {...states} user={user} authValue={authValue} />} />
+					<Route exact path="/admin/completeditems" element={<Screens.CompletedItems {...states} user={user} authValue={authValue} />} />
+					{/* <Route exact path="/cart" element={<Screens.Cart {...states} user={user} authValue={authValue} />} />
+					<Route exact path="/cart" element={<Screens.Cart {...states} user={user} authValue={authValue} />} />
+					<Route exact path="/cart" element={<Screens.Cart {...states} user={user} authValue={authValue} />} /> */}
+						
 					<Route path='*' exact={true} component={<>Test</>} />
 					{/* <Route path="/dashboard" element={<Screens.AdminDashboard user={user} authValue={authValue} />} /> */}
 
