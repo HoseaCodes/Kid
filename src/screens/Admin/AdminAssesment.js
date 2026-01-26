@@ -16,6 +16,7 @@ import {
 import { Doughnut, Line } from "react-chartjs-2";
 import { QuizComponent } from 'ai-quiz';
 import Layout from "../../components/Dashboard/Layout";
+import LazyLoad from "react-lazyload";
 
 ChartJS.register(
 	CategoryScale,
@@ -156,7 +157,9 @@ export default function AdminAssesment() {
 							</div>
 
 							{/* characters svg */}
-							<img loading="lazy" src={charImage} alt="charim" className="ml-auto mr-16" />
+							<LazyLoad height={100} offset={100} once>
+							  <img loading="lazy" src={charImage} alt="charim" className="ml-auto mr-16" />
+							</LazyLoad>
 
 							{/* circle svg */}
 							<svg

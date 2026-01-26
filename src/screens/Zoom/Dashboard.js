@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 // import Header from "./Header";
 import * as Components from "../../components/all";
 import Layout from "../../components/Dashboard/Layout";
+import LazyLoad from "react-lazyload";
 
 const dashboard1 = "https://d10grw5om5v513.cloudfront.net/assets/images/dashboard1.png";
 const dashboard2 = "https://d10grw5om5v513.cloudfront.net/assets/images/dashboard2.png";
@@ -28,7 +29,9 @@ function Dashboard() {
                   className="bg-white shadow-md rounded-lg p-6 flex flex-col items-center cursor-pointer"
                   onClick={() => navigate("/dashboard/zoom/create")}
                 >
-                  <img src={dashboard1} alt="icon" className="w-20 mb-4" />
+                  <LazyLoad height={80} offset={100} once>
+                    <img src={dashboard1} alt="icon" className="w-20 mb-4" />
+                  </LazyLoad>
                   <h2 className="text-xl font-bold mb-2">Create Meeting</h2>
                   <p className="text-gray-700">
                     Create a new meeting and invite people.
@@ -38,7 +41,9 @@ function Dashboard() {
                   className="bg-white shadow-md rounded-lg p-6 flex flex-col items-center cursor-pointer"
                   onClick={() => navigate("/dashboard/zoom/mymeetings")}
                 >
-                  <img src={dashboard2} alt="icon" className="w-full mb-4" />
+                  <LazyLoad height={100} offset={100} once>
+                    <img src={dashboard2} alt="icon" className="w-full mb-4" />
+                  </LazyLoad>
                   <h2 className="text-xl font-bold mb-2">My Meetings</h2>
                   <p className="text-gray-700">View your created meetings.</p>
                 </div>
@@ -46,7 +51,9 @@ function Dashboard() {
                   className="bg-white shadow-md rounded-lg p-6 flex flex-col items-center cursor-pointer"
                   onClick={() => navigate("/dashboard/zoom/meetings")}
                 >
-                  <img src={dashboard3} alt="icon" className="w-20 mb-4" />
+                  <LazyLoad height={80} offset={100} once>
+                    <img src={dashboard3} alt="icon" className="w-20 mb-4" />
+                  </LazyLoad>
                   <h2 className="text-xl font-bold mb-2">Meetings</h2>
                   <p className="text-gray-700">
                     View the meetings that you are invited to.

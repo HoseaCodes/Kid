@@ -1,6 +1,7 @@
 import React from "react";
 import * as Components from "../../components/all";
 import StaticLayout from "../../components/StaticLayout";
+import LazyLoad from "react-lazyload";
 
 const studentBg = "https://d10grw5om5v513.cloudfront.net/assets/images/student-bg.png";
 const chatBg = "https://d10grw5om5v513.cloudfront.net/assets/images/chat-bg.png";
@@ -437,7 +438,9 @@ export default function StudentScreen() {
                     px-12 md:pl-24 md:pr-0
                     "
         >
-          <img loading="lazy" src={artsBg} alt="dates_img" className="w-full object-contain" />
+          <LazyLoad height={100} offset={100} once>
+            <img loading="lazy" src={artsBg} alt="dates_img" className="w-full object-contain" />
+          </LazyLoad>
         </div>
 
         {/* right */}

@@ -1,4 +1,5 @@
 import React from "react";
+import LazyLoad from "react-lazyload";
 
 const imgPlaceholder = "https://d10grw5om5v513.cloudfront.net/assets/images/image-placeholder.png";
 
@@ -13,7 +14,9 @@ const CourseList = ({
       <ul className="courses-list" style={{ margin: "auto", width: "60%" }}>
         {courses.slice(coursesSlice[0], coursesSlice[1]).map((course) => (
           <li key={course._id} style={{ marginTop: "2%", cursor: "pointer" }}>
-            <img loading="lazy" src={imgPlaceholder} alt="img" />
+            <LazyLoad height={80} offset={100} once>
+              <img loading="lazy" src={imgPlaceholder} alt="img" />
+            </LazyLoad>
             <div className="info">
               <h2 className="title">{course.course_name}</h2>
               <p className="desc">Subject: {course.subject}</p>

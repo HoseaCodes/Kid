@@ -1,5 +1,6 @@
 import React from "react";
 import { updateFireStoreDoc } from "../../lib/firebase";
+import LazyLoad from "react-lazyload";
 
 const imgPlaceholder = "https://d10grw5om5v513.cloudfront.net/assets/images/image-placeholder.png";
 
@@ -71,7 +72,9 @@ const EditCourse = (props) => {
 								/>
 							</div>
 							<div className="banner-img">
-								<img loading="lazy" src={imgPlaceholder} alt="img-placeholder" />
+								<LazyLoad height={100} offset={100} once>
+								  <img loading="lazy" src={imgPlaceholder} alt="img-placeholder" />
+								</LazyLoad>
 							</div>
 							<div className="author">
 								<div>

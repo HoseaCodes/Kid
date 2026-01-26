@@ -2,6 +2,7 @@ import React from "react";
 import * as Components from "../../components/all";
 import { Slide } from "pure-react-carousel";
 import StaticLayout from "../../components/StaticLayout";
+import LazyLoad from "react-lazyload";
 
 const facilitiesBg = "https://d10grw5om5v513.cloudfront.net/assets/images/facilities-bg.png";
 const rangeBg = "https://d10grw5om5v513.cloudfront.net/assets/images/range-bg.png";
@@ -547,7 +548,9 @@ export default function FacilitiesScreen() {
 								bg-[#F5F5F5] 
 								"
               >
-                <img loading="lazy" src={support} alt="book_img" className="w-full" />
+                <LazyLoad height={100} offset={100} once>
+                  <img loading="lazy" src={support} alt="book_img" className="w-full" />
+                </LazyLoad>
                 <div className="details text-left py-5 px-4">
                   <Components.BigParagraph className="text-left text-[#C33B4C] font-bold font-[riffic] capitalize">
                     STUDENT SUPPORT{" "}
@@ -574,7 +577,9 @@ export default function FacilitiesScreen() {
 							bg-[#C33B4C] 
 						"
               >
-                <img loading="lazy" src={campuses} alt="book_img" className="w-full" />
+                <LazyLoad height={100} offset={100} once>
+                  <img loading="lazy" src={campuses} alt="book_img" className="w-full" />
+                </LazyLoad>
                 <div className="details text-left py-5 px-4">
                   <Components.BigParagraph className="text-left text-white font-bold font-[riffic] capitalize">
                     CAMPUSES
@@ -600,7 +605,9 @@ export default function FacilitiesScreen() {
 								bg-[#F5F5F5] 
 								"
               >
-                <img loading="lazy" src={union} alt="book_img" className="w-full" />
+                <LazyLoad height={100} offset={100} once>
+                  <img loading="lazy" src={union} alt="book_img" className="w-full" />
+                </LazyLoad>
                 <div className="details text-left py-5 px-4">
                   <Components.BigParagraph className="text-left text-[#C33B4C] font-bold font-[riffic] capitalize">
                     STUDENTS UNION
@@ -627,7 +634,9 @@ export default function FacilitiesScreen() {
 							bg-[#C33B4C] 
 						"
               >
-                <img loading="lazy" src={campuses} alt="book_img" className="w-full" />
+                <LazyLoad height={100} offset={100} once>
+                  <img loading="lazy" src={campuses} alt="book_img" className="w-full" />
+                </LazyLoad>
                 <div className="details text-left py-5 px-4">
                   <Components.BigParagraph className="text-left text-white font-bold font-[riffic] capitalize">
                     CAMPUSES
@@ -653,7 +662,9 @@ export default function FacilitiesScreen() {
 								bg-[#F5F5F5] 
 								"
               >
-                <img loading="lazy" src={union} alt="book_img" className="w-full" />
+                <LazyLoad height={100} offset={100} once>
+                  <img loading="lazy" src={union} alt="book_img" className="w-full" />
+                </LazyLoad>
                 <div className="details text-left py-5 px-4">
                   <Components.BigParagraph className="text-left text-[#C33B4C] font-bold font-[riffic] capitalize">
                     STUDENTS UNION

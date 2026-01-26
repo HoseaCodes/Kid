@@ -3,6 +3,7 @@ import * as Components from "../../components/all";
 
 import { Slide } from "pure-react-carousel";
 import StaticLayout from "../../components/StaticLayout";
+import LazyLoad from "react-lazyload";
 
 const admissionBg = "https://d10grw5om5v513.cloudfront.net/assets/images/admission-bg.png";
 const affordableBg = "https://d10grw5om5v513.cloudfront.net/assets/images/affordable-bg.png";
@@ -397,7 +398,9 @@ export default function AdmissionScreen() {
 								bg-[#F5F5F5] 
 								"
               >
-                <img loading="lazy" src={apply} alt="book_img" className="w-full" />
+                <LazyLoad height={100} offset={100} once>
+                  <img loading="lazy" src={apply} alt="book_img" className="w-full" />
+                </LazyLoad>
                 <div className="details text-left py-5 px-4">
                   <Components.BigParagraph className="text-left text-[#C33B4C] font-bold font-[riffic] capitalize">
                     aPPLY FOR AID{" "}
@@ -424,7 +427,9 @@ export default function AdmissionScreen() {
 							bg-[#C33B4C] 
 						"
               >
-                <img loading="lazy" src={estimate} alt="book_img" className="w-full" />
+                <LazyLoad height={100} offset={100} once>
+                  <img loading="lazy" src={estimate} alt="book_img" className="w-full" />
+                </LazyLoad>
                 <div className="details text-left py-5 px-4">
                   <Components.BigParagraph className="text-left text-white font-bold font-[riffic] capitalize">
                     ESTIMATE YOUR COSTS{" "}
@@ -450,7 +455,9 @@ export default function AdmissionScreen() {
 								bg-[#F5F5F5] 
 								"
               >
-                <img loading="lazy" src={types} alt="book_img" className="w-full" />
+                <LazyLoad height={100} offset={100} once>
+                  <img loading="lazy" src={types} alt="book_img" className="w-full" />
+                </LazyLoad>
                 <div className="details text-left py-5 px-4">
                   <Components.BigParagraph className="text-left text-[#C33B4C] font-bold font-[riffic] capitalize">
                     TYPES OF AID{" "}
@@ -477,7 +484,9 @@ export default function AdmissionScreen() {
 							bg-[#C33B4C] 
 						"
               >
-                <img loading="lazy" src={estimate} alt="book_img" className="w-full" />
+                <LazyLoad height={100} offset={100} once>
+                  <img loading="lazy" src={estimate} alt="book_img" className="w-full" />
+                </LazyLoad>
                 <div className="details text-left py-5 px-4">
                   <Components.BigParagraph className="text-left text-white font-bold font-[riffic] capitalize">
                     ESTIMATE YOUR COSTS{" "}
@@ -503,7 +512,9 @@ export default function AdmissionScreen() {
 								bg-[#F5F5F5] 
 								"
               >
-                <img loading="lazy" src={types} alt="book_img" className="w-full" />
+                <LazyLoad height={100} offset={100} once>
+                  <img loading="lazy" src={types} alt="book_img" className="w-full" />
+                </LazyLoad>
                 <div className="details text-left py-5 px-4">
                   <Components.BigParagraph className="text-left text-[#C33B4C] font-bold font-[riffic] capitalize">
                     TYPES OF AID{" "}

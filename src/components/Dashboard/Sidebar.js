@@ -11,7 +11,8 @@ import { FaLayerGroup } from "react-icons/fa";
 import { IoIosCreate } from "react-icons/io";
 import { MdAssignmentAdd } from "react-icons/md";
 import { RiPassPendingFill } from "react-icons/ri";
-
+import LazyLoad from "react-lazyload";
+  
 const logo = "https://d10grw5om5v513.cloudfront.net/assets/images/logo1.png";
 
 export default function Sidebar({ page, setPage }) {
@@ -90,7 +91,9 @@ export default function Sidebar({ page, setPage }) {
           isMobileOpen ? "fixed inset-0 z-50" : "hidden md:flex"
         } overflow-auto`}
       >
-        <img loading="lazy" src={logo} alt="" className="h-20 mb-6" />
+        <LazyLoad height={80} offset={100} once>
+          <img loading="lazy" src={logo} alt="" className="h-20 mb-6" />
+        </LazyLoad>
         {routes.map((route) => (
           <div
             key={route.name}

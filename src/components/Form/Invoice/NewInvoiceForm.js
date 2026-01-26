@@ -1,4 +1,5 @@
 import React from "react";
+import LazyLoad from "react-lazyload";
 
 export default function NewInvoiceForm({
   newInvoice,
@@ -422,7 +423,9 @@ export default function NewInvoiceForm({
               <td>
                 Signature Here
                 <br />
-                <img loading="lazy" src={imgPlaceholder} alt="img" />
+                <LazyLoad height={100} offset={100} once>
+                  <img loading="lazy" src={imgPlaceholder} alt="img" />
+                </LazyLoad>
               </td>
             </tr>
           </tbody>

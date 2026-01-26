@@ -1,6 +1,7 @@
 import React from "react";
 import * as Components from "../../components/all";
 import Layout from "../../components/Dashboard/Layout";
+import LazyLoad from "react-lazyload";
 
 const img1 = "https://d10grw5om5v513.cloudfront.net/assets/images/person1.png";
 const img2 = "https://d10grw5om5v513.cloudfront.net/assets/images/person2.png";
@@ -19,7 +20,9 @@ export default function AdminZoom() {
 					{/* cards */}
 					<div className="flex justify-center items-center mt-3 px-5">
 						<div className="relative h-24 w-32 bg-gray-200 rounded overflow-hidden mx-2">
-							<img loading="lazy" src={img1} alt="img1" className="h-full w-full" />
+							<LazyLoad height={100} offset={100} once>
+							  <img loading="lazy" src={img1} alt="img1" className="h-full w-full" />
+							</LazyLoad>
 
 							<p className="absolute bottom-0 left-0 text-white bg-[#C33B4C] bg-opacity-80 px-4 text-xs">
 								David
@@ -27,7 +30,9 @@ export default function AdminZoom() {
 						</div>
 
 						<div className="relative h-24 w-32 bg-gray-200 rounded overflow-hidden mx-2">
-							<img loading="lazy" src={img2} alt="img1" className="h-full w-full" />
+							<LazyLoad height={100} offset={100} once>
+							  <img loading="lazy" src={img2} alt="img1" className="h-full w-full" />
+							</LazyLoad>
 
 							<p className="absolute bottom-0 left-0 text-white bg-[#C33B4C] bg-opacity-80 px-4 text-xs">
 								Aliya
@@ -51,7 +56,9 @@ export default function AdminZoom() {
 						</div>
 
 						<div className="relative h-24 w-32 bg-gray-200 rounded overflow-hidden mx-2">
-							<img loading="lazy" src={img3} alt="img1" className="h-full w-full" />
+							<LazyLoad height={100} offset={100} once>
+							  <img loading="lazy" src={img3} alt="img1" className="h-full w-full" />
+							</LazyLoad>
 
 							<p className="absolute bottom-0 left-0 text-white bg-[#C33B4C] bg-opacity-80 px-4 text-xs">
 								Aliya
@@ -59,7 +66,9 @@ export default function AdminZoom() {
 						</div>
 
 						<div className="relative h-24 w-32 bg-gray-200 rounded overflow-hidden mx-2">
-							<img loading="lazy" src={img1} alt="img1" className="h-full w-full" />
+							<LazyLoad height={100} offset={100} once>
+							  <img loading="lazy" src={img1} alt="img1" className="h-full w-full" />
+							</LazyLoad>
 
 							<p className="absolute bottom-0 left-0 text-white bg-[#C33B4C] bg-opacity-80 px-4 text-xs">
 								Jack
@@ -67,7 +76,9 @@ export default function AdminZoom() {
 						</div>
 
 						<div className="relative h-24 w-32 bg-gray-200 rounded overflow-hidden mx-2">
-							<img loading="lazy" src={img1} alt="img1" className="h-full w-full" />
+							<LazyLoad height={100} offset={100} once>
+							  <img loading="lazy" src={img1} alt="img1" className="h-full w-full" />
+							</LazyLoad>
 
 							<p className="absolute bottom-0 left-0 text-white bg-[#C33B4C] bg-opacity-80 px-4 text-xs">
 								Jack
@@ -75,7 +86,9 @@ export default function AdminZoom() {
 						</div>
 
 						<div className="relative h-24 w-32 bg-gray-200 rounded overflow-hidden mx-2">
-							<img loading="lazy" src={img1} alt="img1" className="h-full w-full" />
+							<LazyLoad height={100} offset={100} once>
+							  <img loading="lazy" src={img1} alt="img1" className="h-full w-full" />
+							</LazyLoad>
 
 							<p className="absolute bottom-0 left-0 text-white bg-[#C33B4C] bg-opacity-80 px-4 text-xs">
 								David
@@ -127,7 +140,9 @@ export default function AdminZoom() {
 					</div>
 
 					<div className="h-[600px] w-full pr-28 mt-6">
-						<img loading="lazy" src={img4} alt="bigimg" className="h-full w-full rounded" />
+						<LazyLoad height={100} offset={100} once>
+						  <img loading="lazy" src={img4} alt="bigimg" className="h-full w-full rounded" />
+						</LazyLoad>
 					</div>
 
 					<div className="flex items-center mt-8">

@@ -4,6 +4,7 @@ import { addItem, removeItem, sendInvoice } from "../../utils/invoiceFunctions";
 import "./NewInvoice.css";
 import * as Papa from "papaparse";
 import Layout from "../../components/Dashboard/Layout";
+import LazyLoad from "react-lazyload";
 
 const imgPlaceholder =
   "https://d10grw5om5v513.cloudfront.net/assets/images/image-placeholder.png";
@@ -424,7 +425,9 @@ const NewInvoice = (props) => {
                   <td>
                     Signature Here
                     <br />
-                    <img loading="lazy" src={imgPlaceholder} alt="img" />
+                    <LazyLoad height={100} offset={100} once>
+                      <img loading="lazy" src={imgPlaceholder} alt="img" />
+                    </LazyLoad>
                   </td>
                 </tr>
               </tbody>

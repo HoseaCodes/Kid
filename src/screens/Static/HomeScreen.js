@@ -76,7 +76,9 @@ export default function HomeScreen(props) {
         <div className="hidden md:flex flex-col items-center mx-20 text-white font-[Grandstander] font-medium">
           <p>01</p>
           <LazyLoad height={360} once>
-            <img src={bar} alt="bar_img" className="w-[5px] h-[360px]" />
+            <LazyLoad height={360} offset={100} once>
+              <img src={bar} alt="bar_img" className="w-[5px] h-[360px]" />
+            </LazyLoad>
           </LazyLoad>
           <p>04</p>
         </div>
