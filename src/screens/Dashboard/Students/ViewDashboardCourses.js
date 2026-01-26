@@ -1,4 +1,5 @@
 import React, { Suspense, lazy } from "react";
+import { traceLoadDashboardCourses } from "../../../utils/performanceTraces";
 import { CiClock2 } from "react-icons/ci";
 import { FaCheckCircle } from "react-icons/fa";
 import Layout from "../../../components/Dashboard/Layout";
@@ -15,23 +16,28 @@ const Dashboard = ({ currentUser }) => {
   const { courses, error, isLoading } = useGetAllCourses();
 
   React.useEffect(() => {
-    if (currentUser && courses) {
-      setCompletedCourses(currentUser.completedCourses || []);
-      setCoursesInProgress(currentUser.courses || []);
-      const allCourses = [];
-      if (courses && Array.isArray(currentUser.courses)) {
-        currentUser.courses.forEach((c) => {
-          courses.forEach((course) => {
-            if (c.course === course.courseId) {
-              course.progress = c.progress;
-              allCourses.push(course);
-            }
-          });
-        });
-        setUserCourses(allCourses);
-      }
-      setLoading(false);
+    async function loadCoursesWithTrace() {
+      await traceLoadDashboardCourses(async () => {
+        if (currentUser && courses) {
+          setCompletedCourses(currentUser.completedCourses || []);
+          setCoursesInProgress(currentUser.courses || []);
+          const allCourses = [];
+          if (courses && Array.isArray(currentUser.courses)) {
+            currentUser.courses.forEach((c) => {
+              courses.forEach((course) => {
+                if (c.course === course.courseId) {
+                  course.progress = c.progress;
+                  allCourses.push(course);
+                }
+              });
+            });
+            setUserCourses(allCourses);
+          }
+          setLoading(false);
+        }
+      });
     }
+    loadCoursesWithTrace();
   }, [currentUser, courses]);
 
   if (!currentUser) return <Layout>Loading this page.</Layout>;

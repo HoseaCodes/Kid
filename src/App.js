@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { analytics } from "./lib/analytics";
+import { logEvent } from "firebase/analytics";
 import "./App.css";
 import * as Screens from "./screens/all";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -15,6 +17,12 @@ const servers = {
 };
 
 function App() {
+    useEffect(() => {
+      // Log initial app load event
+      if (analytics) {
+        logEvent(analytics, "app_loaded");
+      }
+    }, []);
   const [isLoggedin, setIsLoggedin] = useState(false);
   const { currentUser, user, loading } = useUserData();
   const [pc, setPc] = useState(new RTCPeerConnection(servers));
