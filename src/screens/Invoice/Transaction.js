@@ -2,6 +2,8 @@ import React, { useState, lazy, Suspense } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import Layout from "../../components/Dashboard/Layout";
 import useGetAllTransactions from "../../hooks/useGetAllTransactions";
+import { analytics } from "../../lib/analytics";
+import { logEvent } from "firebase/analytics";
 
 const TransactionDetails = lazy(() => import("../../components/Transactions/TransactionDetails"));
 
@@ -20,6 +22,9 @@ const Transaction = (props) => {
         if (transaction._id === id) {
           setTransaction(transaction);
           setIsTransactionLoaded(true);
+          if (analytics) {
+            logEvent(analytics, "transaction_view", { transactionId: id });
+          }
         }
       });
     };
