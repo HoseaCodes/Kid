@@ -195,7 +195,7 @@ const IsAdmin = ({
           </div>
           <div className="flex flex-col flex-1 w-full overflow-hidden">
             {currentUser.announcements &&
-            currentUser.announcements.admins > 0 ? (
+            Array.isArray(currentUser.announcements.admins) && currentUser.announcements.admins.length > 0 ? (
               currentUser.announcements.admins.map((announcement) => (
                 <div className="flex items-center p-2">
                   <Student />

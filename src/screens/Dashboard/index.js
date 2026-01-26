@@ -48,61 +48,60 @@ export default function Dashboard(props) {
   const [totalTeachers, setTotalTeachers] = React.useState(0);
   const [totalParents, setTotalParents] = React.useState(0);
   const [totalEarnings, setTotalEarnings] = React.useState(0);
-  const [pendingInvoices, setPendingInvoices] = React.useState(0);
-  const [forPayments, setForPayments] = React.useState(0);
-  const [totalInvoices, setTotalInvoices] = React.useState(0);
+  const [pendingInvoices, setPendingInvoices] = React.useState([]);
+  const [forPayments, setForPayments] = React.useState([]);
+  const [totalInvoices, setTotalInvoices] = React.useState([]);
   const [enrolledStudents, setEnrolledStudents] = React.useState(0);
   const [instructingCourses, setInstructingCourses] = React.useState(0);
   const [enrolledCourses, setEnrolledCourses] = React.useState(0);
 
   React.useEffect(() => {
-    if (users) {
-      const students = users.filter((user) => user.isStudent);
-      const teachers = users.filter((user) => user.isTeacher);
-      const parents = users.filter((user) => user.isParent);
-      setTotalStudents(students.length);
-      setTotalTeachers(teachers.length);
-      setTotalParents(parents.length);
+    if (!users || !transactions || !courses || !currentUser) return;
 
-      let earnings = 0;
-      transactions.map(
-        (transaction) => (earnings += parseFloat(transaction.cart.total_price))
-      );
-      setTotalEarnings(earnings);
+    const students = users.filter((user) => user.isStudent);
+    const teachers = users.filter((user) => user.isTeacher);
+    const parents = users.filter((user) => user.isParent);
+    setTotalStudents(students.length);
+    setTotalTeachers(teachers.length);
+    setTotalParents(parents.length);
 
-      let pendingInvoices = [];
-      users.map((user) => pendingInvoices.push(user.pendingInvoices));
-      setPendingInvoices(pendingInvoices);
+    let earnings = 0;
+    transactions.forEach(
+      (transaction) => (earnings += parseFloat(transaction.cart.total_price))
+    );
+    setTotalEarnings(earnings);
 
-      let forPayments = [];
-      users.map((user) => forPayments.push(user.forPaymentCourses));
-      setForPayments(forPayments);
+    let pendingInvoicesArr = [];
+    users.forEach((user) => pendingInvoicesArr.push(user.pendingInvoices));
+    setPendingInvoices(pendingInvoicesArr);
 
-      let totalInvoices = [];
-      users.map((user) => totalInvoices.push(user.transactions));
-      setTotalInvoices(totalInvoices);
+    let forPaymentsArr = [];
+    users.forEach((user) => forPaymentsArr.push(user.forPaymentCourses));
+    setForPayments(forPaymentsArr);
 
-      let enrolledStudentsCount = 0;
-      let instructingCoursesCount = 0;
-      let enrolledCoursesCount = 0;
-      courses.map((course) => {
-        if (course.instructor === currentUser.id) {
+    let totalInvoicesArr = [];
+    users.forEach((user) => totalInvoicesArr.push(user.transactions));
+    setTotalInvoices(totalInvoicesArr);
+
+    let enrolledStudentsCount = 0;
+    let instructingCoursesCount = 0;
+    let enrolledCoursesCount = 0;
+    courses.forEach((course) => {
+      if (course.instructor === currentUser.id) {
+        enrolledStudentsCount =
+          enrolledStudentsCount + course.num_of_students;
+        instructingCoursesCount++;
+        enrolledCoursesCount =
+          enrolledCoursesCount + parseFloat(course.price);
+        if (course.students) {
           enrolledStudentsCount =
-            enrolledStudentsCount + course.num_of_students;
-          instructingCoursesCount++;
-          enrolledCoursesCount =
-            enrolledCoursesCount + parseFloat(course.price);
-          if (course.students) {
-            enrolledStudentsCount =
-              enrolledStudentsCount + course.students.length;
-          }
+            enrolledStudentsCount + course.students.length;
         }
-        return { enrolledStudentsCount, instructingCoursesCount };
-      });
-      setEnrolledStudents(enrolledStudentsCount);
-      setInstructingCourses(instructingCoursesCount);
-    }
-  }, [users]);
+      }
+    });
+    setEnrolledStudents(enrolledStudentsCount);
+    setInstructingCourses(instructingCoursesCount);
+  }, [users, transactions, courses, currentUser]);
 
   if (loading || !currentUser) return <h1>Loading...</h1>;
   if (isLoading) return <div>Loading...</div>;

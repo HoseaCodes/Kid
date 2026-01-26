@@ -142,7 +142,7 @@ const IsTeacher = ({
           </div>
           <div className="flex flex-col flex-1 w-full overflow-hidden">
             {currentUser.announcements &&
-            currentUser.announcements.teachers > 0 ? (
+            Array.isArray(currentUser.announcements.teachers) && currentUser.announcements.teachers.length > 0 ? (
               currentUser.announcements.teachers.map((announcement) => (
                 <div className="flex items-center p-2">
                   <Student />

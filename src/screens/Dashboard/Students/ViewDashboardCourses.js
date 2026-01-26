@@ -16,10 +16,10 @@ const Dashboard = ({ currentUser }) => {
 
   React.useEffect(() => {
     if (currentUser && courses) {
-      setCompletedCourses(currentUser.completedCourses);
-      setCoursesInProgress(currentUser.courses);
+      setCompletedCourses(currentUser.completedCourses || []);
+      setCoursesInProgress(currentUser.courses || []);
       const allCourses = [];
-      if (courses) {
+      if (courses && Array.isArray(currentUser.courses)) {
         currentUser.courses.forEach((c) => {
           courses.forEach((course) => {
             if (c.course === course.courseId) {
@@ -43,21 +43,21 @@ const Dashboard = ({ currentUser }) => {
       <div className="p-6 space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Suspense fallback={<div>Loading info cards...</div>}>
-          <InfoCard
-            icon={CiClock2}
-            label={"In Progress"}
-            numberOfItems={coursesInProgress.length}
-          />
-          <InfoCard
-            icon={FaCheckCircle}
-            label={"Completed"}
-            numberOfItems={completedCourses.length}
+            <InfoCard
+              icon={CiClock2}
+              label={"In Progress"}
+              numberOfItems={(coursesInProgress || []).length}
+            />
+            <InfoCard
+              icon={FaCheckCircle}
+              label={"Completed"}
+              numberOfItems={(completedCourses || []).length}
               variant="success"
             />
-            </Suspense>
+          </Suspense>
         </div>
         <Suspense fallback={<div>Loading courses...</div>}>
-          <CoursesList items={userCourses} />
+          <CoursesList items={userCourses || []} />
         </Suspense>
       </div>
     </Layout>
