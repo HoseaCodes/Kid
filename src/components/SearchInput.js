@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDebounce } from "../hooks/useDebounce";
+import { useThrottle } from "../hooks/useThrottle";
 // Custom Input component
 const Input = ({ className, placeholder, value, onChange }) => (
   <input
@@ -15,13 +16,22 @@ const Input = ({ className, placeholder, value, onChange }) => (
 // Main SearchInput component
 const SearchInput = ({ onSearch }) => {
   const [value, setValue] = useState("");
-  const debouncedValue = useDebounce(value);
+    const debouncedValue = useDebounce(value);
+    const throttledValue = useThrottle(value);
 
   useEffect(() => {
     if (onSearch) {
       onSearch(debouncedValue);
     }
   }, [debouncedValue, onSearch]);
+  
+    // Example: Throttle search event
+    useEffect(() => {
+      if (throttledValue !== undefined) {
+        // You can use throttledValue for less frequent updates
+        // onSearch(throttledValue);
+      }
+    }, [throttledValue, onSearch]);
 
   return (
     <div className="relative">
