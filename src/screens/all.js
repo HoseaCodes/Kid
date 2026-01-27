@@ -54,7 +54,6 @@ import Invoice from "./Invoice/Invoice.js";
 import NewInvoice from "./Invoice/NewInvoice.js";
 import Transaction from "./Invoice/Transaction.js";
 import Transactions from "./Invoice/Transactions.js";
-import UnifiedInvoiceTable from "./Invoice/UnifiedInvoiceTable.js";
 // Invoice Screens
 
 import PendingCourse from "./Dashboard/Admin/PendingCourse.js";
@@ -113,7 +112,6 @@ export {
   ViewChapter,
   ViewDashboardCourses,
   Analytics,
-  UnifiedInvoiceTable,
   Terms,
   Privacy,
   WebRTCDemo,

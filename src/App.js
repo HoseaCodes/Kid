@@ -153,21 +153,21 @@ function App() {
           <Route exact path="/dashboard/course/:id/students/:studentusername" element={<Screens.ViewStudent {...states} user={user} />} />
           {/* Dashbaord Student Routes */}
 
-          {/* Invoice Routes */}
-          <Route exact path="/dashboard/admin/invoice/new" element={<Screens.NewInvoice {...states} user={user} />} />
-          <Route exact path="/dashboard/admin/invoices/all" element={<Screens.UnifiedInvoiceTable {...states} user={user} />} />
+
+          {/* Student Transaction Routes */}
           <Route exact path="/dashboard/transaction/:id" element={<Screens.Transaction {...states} user={user} />} />
           <Route exact path="/dashboard/transactions" element={<Screens.Transactions {...states} user={user} />} />
           <Route exact path="/dashboard/transaction/:id/invoice" element={<Screens.Invoice {...states} user={user} />} />
-          {/* Invoice Routes */}
 
           {/* Dashboard Admin Routes */}
+          <Route exact path="/dashboard/admin/management/courses" element={<Screens.NewCourse {...states} user={user} />} />
+          <Route exact path="/dashboard/admin/courses/edit/:id" element={<Screens.UpdateCourse {...states} user={user} />} />
+          {/* Admin Invoice Routes */}
+          <Route exact path="/dashboard/admin/management/invoices" element={<Screens.NewInvoice {...states} user={user} />} />
           <Route exact path="/dashboard/admin/analytics" element={<Screens.Analytics {...states} user={user} />} />
-          <Route exact path="/dashboard/courses/edit/:id" element={<Screens.UpdateCourse {...states} user={user} />} />
           {/* issue rendering */}
           <Route exact path="/dashboard/admin/course/:id/chapters/:id" element={<Screens.UpdateChapter {...states} user={user} />} />
           {/* issue rendering */}
-          <Route exact path="/dashboard/admin/management/courses" element={<Screens.NewCourse {...states} user={user} />} />
           <Route exact path="/admin/user/:userid/pendingcourse/:courseid" element={<Screens.PendingCourse {...states} user={user} />} />
           <Route exact path="/dashboard/admin/users" element={<Screens.AdminUserManagementPage {...states} user={user} />} />
           {/* Dashboard Admin Routes */}

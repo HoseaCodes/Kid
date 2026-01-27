@@ -43,7 +43,7 @@ const ActionDropdown = ({ course, onDelete, isDeleting }) => {
   };
 
   const handleEdit = () => {
-    navigate(`/dashboard/courses/edit/${courseId}`);
+    navigate(`/dashboard/admin/courses/edit/${courseId}`);
     setIsOpen(false);
   };
 
