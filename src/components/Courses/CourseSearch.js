@@ -12,7 +12,7 @@ export default function CourseSearch({
   showCourseResults,
 }) {
   return (
-    <div className={`form-group mb-4 ${isStudentFound ? "block" : "hidden"}`}>
+    <div className={`form-group mb-4`}>
       <label
         htmlFor="assigned-course-name"
         className="block text-sm font-medium text-gray-700"
@@ -43,9 +43,9 @@ export default function CourseSearch({
 
       {showCourseResults && (
         <div id="results-container" className="mt-2 space-y-2">
-          {courses.map((course) => (
+          {courses.map((course, idx) => (
             <button
-              key={course.id}
+              key={course.id || course.courseId || `course-${idx}`}
               type="button"
               className="form-control block w-full text-left border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               onClick={() => {
@@ -55,9 +55,9 @@ export default function CourseSearch({
               Name: {course.courseName}
             </button>
           ))}
-          {filteredCourses.slice(0, 10).map((course) => (
+          {filteredCourses.slice(0, 10).map((course, idx) => (
             <button
-              key={course.id}
+              key={course.id || course.courseId || `filtered-course-${idx}`}
               type="button"
               className="form-control block w-full text-left border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               onClick={() => {

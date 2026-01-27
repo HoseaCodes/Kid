@@ -66,7 +66,6 @@ import ViewCourse from "./Dashboard/ViewCourse.js";
 import ViewChapter from "./Dashboard/ViewChapter.js";
 import ViewDashboardCourses from "./Dashboard/Students/ViewDashboardCourses.js";
 import Analytics from "./Dashboard/Analytics.js";
-import AssignStudentCourse from "./Dashboard/Admin/AssignStudentCourse.js";
   
 export {
   AboutScreen,
@@ -117,7 +116,6 @@ export {
   ViewDashboardCourses,
   Analytics,
   UnifiedInvoiceTable,
-  AssignStudentCourse,
   Terms,
   Privacy,
   WebRTCDemo,

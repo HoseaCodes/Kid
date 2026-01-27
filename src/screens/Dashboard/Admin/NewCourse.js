@@ -164,7 +164,6 @@ const NewCourse = (props) => {
   const [searchedItems, setSearchedItems] = useState([]);
   const [coursesSlice, setCoursesSlice] = useState([0, 10]);
 
-
   // Assign Teacher state
   const [selectedUser, setSelectedUser] = useState({});
   const [showUserResults, setShowUserResults] = useState(false);
@@ -178,8 +177,6 @@ const NewCourse = (props) => {
     instructor: { username: "" },
   });
   const [isAssignedCourseLoading, setIsAssignedCourseLoading] = useState(false);
-  // Fix: define setIsAssigningCourse for Assign Teacher loading state
-  const [isAssigningCourse, setIsAssigningCourse] = useState(false);
 
   // Assign Student state
   const [students, setStudents] = useState([]);
@@ -198,6 +195,7 @@ const NewCourse = (props) => {
   });
   const [isStudentAssignedCourseLoading, setIsStudentAssignedCourseLoading] = useState(false);
   const [isAssigningStudent, setIsAssigningStudent] = useState(false);
+  const [course, setCourse] = useState(null);
 
   // Sync local courses with hook data
   useEffect(() => {
@@ -402,6 +400,7 @@ const NewCourse = (props) => {
     setIsAssignedCourseLoading(true);
     setIsCourseFound(true);
     setShowCourseResults(false);
+    console.log('[DEBUG] handleSelectedCourse: course selected', course);
     selectCourse({
       currentUser,
       assignedCourse,
@@ -419,8 +418,14 @@ const NewCourse = (props) => {
   // Assign Student handlers
   const handleAssignedStudent = (e) => {
     setShowStudentResults(true);
-    setIsStudentFound(false);
-    setIsStudentCourseFound(false);
+    
+    // Only reset states if input is actually empty (cleared)
+    if (!e.target.value) {
+      console.log('[DEBUG] handleAssignedStudent: input cleared, resetting states');
+      setIsStudentFound(false);
+      setIsStudentCourseFound(false);
+    }
+    
     setFilteredStudents(
       students.filter((s) =>
         s.username.toLowerCase().includes(e.target.value.toLowerCase())
@@ -452,39 +457,57 @@ const NewCourse = (props) => {
   };
 
   const handleSelectedStudent = (student) => {
-    setShowStudentResults(false);
-    if (student.username !== studentAssignedCourse.student.username) {
+    // Defensive: always set full student object with .id
+    if (student && student.uid) {
+      setShowStudentResults(false);
       setSelectedStudent(student);
       setShowStudentCourseResults(false);
       setIsStudentCourseFound(false);
       setIsStudentFound(true);
       setStudentAssignedCourse({ student });
-      
       const studentInput = document.getElementById("assigned-student");
-      if (studentInput) studentInput.value = student.username;
-    }
-    
-    const courseInput = document.getElementById("assigned-course-name");
-    if (studentFilteredCourses.length && courseInput) {
-      courseInput.value = "";
+      if (studentInput) {
+        studentInput.value = student.username;
+      }
+      // Clear course input if it exists
+      const courseInput = document.getElementById("assigned-course-name");
+      if (courseInput) {
+        courseInput.value = "";
+      }
+    } else {
+      // If student object is invalid, reset selection
+      setIsStudentFound(false);
+      setSelectedStudent({});
+      setStudentAssignedCourse({ student: { username: "" } });
     }
   };
 
   const handleSelectedStudentCourse = (course) => {
-    setIsStudentAssignedCourseLoading(true);
-    setIsStudentCourseFound(true);
-    setShowStudentCourseResults(false);
-    selectCourse({
-      currentUser,
-      assignedCourse: studentAssignedCourse,
-      setAssignedCourse: setStudentAssignedCourse,
-      setIsAssignedCourseLoading: setIsStudentAssignedCourseLoading,
-      course,
-    });
-    
-    const courseInput = document.getElementById("assigned-course-name");
-    if (courseInput) {
-      courseInput.value = `Name: ${course.courseName || course.course_name}, Instructor: ${course.courseInstructor || course.instructor?.username}`;
+    // Defensive: always set full course object with .id
+    if (course && (course.id || course.courseId)) {
+      setIsStudentAssignedCourseLoading(true);
+      setIsStudentCourseFound(true);
+      setShowStudentCourseResults(false);
+      setCourse({
+        ...course,
+        id: course.id || course.courseId,
+        course_name: course.courseName || course.course_name
+      });
+      selectCourse({
+        currentUser,
+        assignedCourse: studentAssignedCourse,
+        setAssignedCourse: setStudentAssignedCourse,
+        setIsAssignedCourseLoading: setIsStudentAssignedCourseLoading,
+        course,
+      });
+      const courseInput = document.getElementById("assigned-course-name");
+      if (courseInput) {
+        courseInput.value = `Name: ${course.courseName || course.course_name}, Instructor: ${course.courseInstructor || course.instructor?.username}`;
+      }
+    } else {
+      // If course object is invalid, reset selection
+      setIsStudentCourseFound(false);
+      setCourse(null);
     }
   };
 
@@ -685,6 +708,15 @@ const NewCourse = (props) => {
     history("/dashboard");
     return null;
   }
+  console.log({
+    isStudentFound,
+    isStudentCourseFound,
+    assignedCourse,
+    filteredCourses,
+    courses,
+    selectedStudent
+    // course
+  })
   
   return (
     <Layout>
@@ -858,7 +890,7 @@ const NewCourse = (props) => {
             <div className="h-full space-y-6">
               <div className="text-center mb-6">
                 <Components.SubHeading className="!text-2xl mb-2">
-                  Assign a <span className="text-[#F38315]">Teacher</span> to Course
+                  Assign <span className="text-[#F38315]">Teacher</span> to Course
                 </Components.SubHeading>
                 <Components.Paragraph className="text-gray-600">
                   Select a teacher and assign them to an existing course
@@ -912,8 +944,6 @@ const NewCourse = (props) => {
                     selectedUser={selectedUser}
                     currentUser={currentUser}
                     setIsUserFound={setIsUserFound}
-                    setLoading={setIsAssigningCourse}
-                    isAssigningCourse={isAssigningCourse}
                   />
                 </Suspense>
               )}
@@ -923,7 +953,7 @@ const NewCourse = (props) => {
             <div className="h-full space-y-6">
               <div className="text-center mb-6">
                 <Components.SubHeading className="!text-2xl mb-2">
-                  Assign a <span className="text-[#F38315]">Student</span> to Course
+                  Assign <span className="text-[#F38315]">Student</span> to Course
                 </Components.SubHeading>
                 <Components.Paragraph className="text-gray-600">
                   Select a student and enroll them in a course
@@ -945,6 +975,7 @@ const NewCourse = (props) => {
                   handleAssignedStudent={handleAssignedStudent}
                   filteredStudents={filteredStudents}
                   handleSelectedStudent={handleSelectedStudent}
+                  setFilteredStudents={setFilteredStudents}
                   students={students}
                 />
               </Suspense>
@@ -980,19 +1011,20 @@ const NewCourse = (props) => {
                     </div>
                   </div>
                 }>
-                  <StudentCourseDetails
-                    isAssignedCourseLoading={isStudentAssignedCourseLoading}
-                    assignedCourse={studentAssignedCourse}
-                    imgPlaceholder="https://d10grw5om5v513.cloudfront.net/assets/images/image-placeholder.png"
-                    currentUser={currentUser}
-                    selectedStudent={selectedStudent}
-                    setLoading={setIsAssigningStudent}
-                    setIsAssigningStudent={setIsAssigningStudent}
-                    isAssigningStudent={isAssigningStudent}
-                    setAreCoursesLoaded={setAreCoursesLoaded}
-                    setAssignedCourse={setStudentAssignedCourse}
-                    assignStudentToCourse={assignStudentToCourse}
-                  />
+                    <StudentCourseDetails
+                      isCourseFound={isStudentCourseFound}
+                      isAssignedCourseLoading={isStudentAssignedCourseLoading}
+                      assignedCourse={course && course.id ? course : null}
+                      imgPlaceholder="https://d10grw5om5v513.cloudfront.net/assets/images/image-placeholder.png"
+                      assignStudentToCourse={assignStudentToCourse}
+                      currentUser={currentUser}
+                      selectedStudent={selectedStudent && selectedStudent.uid ? { ...selectedStudent, id: selectedStudent.uid } : null}
+                      setLoading={() => {}}
+                      setIsAssigningStudent={setIsAssigningStudent}
+                      isAssigningStudent={isAssigningStudent}
+                      setAreCoursesLoaded={setAreCoursesLoaded}
+                      setAssignedCourse={setStudentAssignedCourse}
+                    />
                 </Suspense>
               )}
             </div>

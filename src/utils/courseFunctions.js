@@ -357,16 +357,25 @@ const assignStudentToCourse = async ({
   );
 
   if (confirm) {
-
     try {
+      // Defensive: check for valid student.id and course.id
+      if (!student?.id || !course?.id) {
+        window.alert("Invalid student or course reference. Please try again.");
+        setIsAssigningStudent(false);
+        return;
+      }
       // Update student's assigned courses
-      const updatedCourses = [...student.courses, course.id];
+      const updatedCourses = Array.isArray(student.courses)
+        ? [...student.courses, course.id]
+        : [course.id];
       await mutateFireStoreDoc("users", student.id, {
         courses: updatedCourses,
       });
 
       // Update course to include student
-      const updatedStudents = [...course.students, student.id];
+      const updatedStudents = Array.isArray(course.students)
+        ? [...course.students, student.id]
+        : [student.id];
       await mutateFireStoreDoc("courses", course.id, {
         students: updatedStudents,
       });
