@@ -163,7 +163,6 @@ function App() {
 
           {/* Dashboard Admin Routes */}
           <Route exact path="/dashboard/admin/analytics" element={<Screens.Analytics {...states} user={user} />} />
-          <Route exact path="/dashboard/admin/course/assign" element={<Screens.AssignCourse {...states} user={user} />} />
           <Route exact path="/dashboard/courses/edit/:id" element={<Screens.UpdateCourse {...states} user={user} />} />
           {/* issue rendering */}
           <Route exact path="/dashboard/admin/course/:id/chapters/:id" element={<Screens.UpdateChapter {...states} user={user} />} />
