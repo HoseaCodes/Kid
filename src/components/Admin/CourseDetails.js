@@ -12,6 +12,7 @@ export default function CourseDetails({
   selectedUser,
   currentUser,
   setIsUserFound,
+  setLoading,
 }) {
   return (
     <div className="flex justify-center mt-4 w-full">
@@ -28,7 +29,7 @@ export default function CourseDetails({
               Course Name: {assignedCourse.course_name}
             </h4>
             <h6 className="mt-1 text-gray-600">
-              by: {assignedCourse.instructor.username}
+              by: {assignedCourse.instructor && assignedCourse.instructor.username ? assignedCourse.instructor.username : 'Unknown'}
             </h6>
           </div>
         </div>
@@ -78,6 +79,7 @@ export default function CourseDetails({
                 assignedCourse,
                 setIsUserFound,
                 setIsCourseFound,
+                setLoading,
               });
             }}
           >

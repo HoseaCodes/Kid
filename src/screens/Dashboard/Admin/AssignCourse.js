@@ -61,7 +61,7 @@ const AssignCourse = (props) => {
             (f.course_name
               .toLowerCase()
               .includes(e.target.value.toLowerCase()) ||
-              f.instructor.username
+              f.instructor && f.instructor.username ? f.instructor.username : 'Unknown'
                 .toLowerCase()
                 .includes(e.target.value.toLowerCase()))
           ) {
@@ -130,7 +130,7 @@ const AssignCourse = (props) => {
 
     document.getElementById(
       "assigned-course-name"
-    ).value = `Name: ${course.course_name}, Instructor: ${course.instructor.username}`;
+    ).value = `Name: ${course.course_name}, Instructor: ${course.instructor && course.instructor.username ? course.instructor.username : 'Unknown'}`;
   };
 
   useEffect(() => {

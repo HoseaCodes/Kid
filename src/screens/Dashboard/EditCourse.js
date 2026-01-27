@@ -93,7 +93,7 @@ const EditCourse = (props) => {
 										<strong>INSTRUCTOR</strong>
 										<input
 											type="text"
-											placeholder={course.instructor.username}
+											   placeholder={course.instructor && course.instructor.username ? course.instructor.username : 'Unknown'}
 											onChange={(e) => {
 												handleUpdate({ e, key: "instructor" });
 											}}
@@ -102,7 +102,7 @@ const EditCourse = (props) => {
 								) : (
 									<div className="ends">
 										<strong>INSTRUCTOR</strong>
-										{course.instructor.username}
+										 {course.instructor && course.instructor.username ? course.instructor.username : 'Unknown'}
 									</div>
 								)} */}
 							</div>

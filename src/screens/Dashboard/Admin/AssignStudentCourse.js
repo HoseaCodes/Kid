@@ -98,7 +98,7 @@ const AssignStudentCourse = (props) => {
     });
     document.getElementById(
         "assigned-course-name"
-    ).value = `Name: ${course.course_name}, Instructor: ${course.instructor.username}`;
+    ).value = `Name: ${course.course_name}, Instructor: ${course.instructor && course.instructor.username ? course.instructor.username : 'Unknown'}`;
   };
 
   useEffect(() => {

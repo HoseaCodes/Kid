@@ -318,15 +318,25 @@ const assignCourse = async (props) => {
       });
       if (!exisiting) {
         updatedCourses.push(assignedCourse);
-        await mutateFireStoreDoc("users", currentUser.uid, {
-          courses: updatedCourses,
-        });
-        await mutateFireStoreDoc("courses", assignedCourse.id, {
-          instructor: currentUser.uid,
-        });
+        // Use Firestore document ID for user
+        const userDocId = currentUser.id || currentUser.userId || currentUser.uid;
+        try {
+          await mutateFireStoreDoc("users", userDocId, {
+            courses: updatedCourses,
+          });
+          await mutateFireStoreDoc("courses", assignedCourse.id, {
+            instructor: userDocId,
+          });
+          window.alert("Successfully assigned teacher to course.");
+        } catch (error) {
+          console.error("Error assigning teacher to course:", error);
+          window.alert("Failed to assign teacher to course. Please try again later.");
+        }
+      } else {
+        window.alert("This teacher is already assigned to the course.");
       }
 
-      setLoading(true);
+      setLoading(false);
       setIsUserFound(false);
       setIsCourseFound(false);
     } else {

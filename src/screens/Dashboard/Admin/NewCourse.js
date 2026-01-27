@@ -5,7 +5,7 @@ import { deleteDoc, doc } from "firebase/firestore";
 import Layout from "../../../components/Dashboard/Layout";
 import useGetAllCourses from "../../../hooks/useGetAllCourses";
 import useGetAllUsers from "../../../hooks/useGetAllUsers";
-import { searchCourse } from "../../../utils/courseFunctions";
+import { searchCourse, assignCourse, selectCourse, assignStudentToCourse } from "../../../utils/courseFunctions";
 import * as Components from "../../../components/all";
 
 const StepForm = lazy(() =>
@@ -13,6 +13,21 @@ const StepForm = lazy(() =>
 );
 const PendingCoursesList = lazy(() => 
   import("../../../components/Courses/PendingCourses")
+);
+const AssignCourseForm = lazy(() => 
+  import("../../../components/Admin/AssignCourseForm")
+);
+const CourseDetails = lazy(() => 
+  import("../../../components/Admin/CourseDetails")
+);
+const StudentSearch = lazy(() => 
+  import("../../../components/Courses/StudentSearch")
+);
+const CourseSearch = lazy(() => 
+  import("../../../components/Courses/CourseSearch")
+);
+const StudentCourseDetails = lazy(() => 
+  import("../../../components/Courses/CourseDetails")
 );
 
 // Action Dropdown Component
@@ -149,6 +164,41 @@ const NewCourse = (props) => {
   const [searchedItems, setSearchedItems] = useState([]);
   const [coursesSlice, setCoursesSlice] = useState([0, 10]);
 
+
+  // Assign Teacher state
+  const [selectedUser, setSelectedUser] = useState({});
+  const [showUserResults, setShowUserResults] = useState(false);
+  const [showCourseResults, setShowCourseResults] = useState(false);
+  const [focused, setFocused] = useState({});
+  const [isUserFound, setIsUserFound] = useState(false);
+  const [isCourseFound, setIsCourseFound] = useState(false);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [filteredCourses, setFilteredCourses] = useState([]);
+  const [assignedCourse, setAssignedCourse] = useState({
+    instructor: { username: "" },
+  });
+  const [isAssignedCourseLoading, setIsAssignedCourseLoading] = useState(false);
+  // Fix: define setIsAssigningCourse for Assign Teacher loading state
+  const [isAssigningCourse, setIsAssigningCourse] = useState(false);
+
+  // Assign Student state
+  const [students, setStudents] = useState([]);
+  const [areStudentsLoaded, setAreStudentsLoaded] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState({});
+  const [areCoursesLoaded, setAreCoursesLoaded] = useState(false);
+  const [showStudentResults, setShowStudentResults] = useState(false);
+  const [showStudentCourseResults, setShowStudentCourseResults] = useState(false);
+  const [studentFocused, setStudentFocused] = useState({});
+  const [isStudentFound, setIsStudentFound] = useState(false);
+  const [isStudentCourseFound, setIsStudentCourseFound] = useState(false);
+  const [filteredStudents, setFilteredStudents] = useState([]);
+  const [studentFilteredCourses, setStudentFilteredCourses] = useState([]);
+  const [studentAssignedCourse, setStudentAssignedCourse] = useState({
+    student: { username: "" },
+  });
+  const [isStudentAssignedCourseLoading, setIsStudentAssignedCourseLoading] = useState(false);
+  const [isAssigningStudent, setIsAssigningStudent] = useState(false);
+
   // Sync local courses with hook data
   useEffect(() => {
     if (courses && courses.length > 0) {
@@ -177,6 +227,38 @@ const NewCourse = (props) => {
     };
     fetchPendingCourses();
   }, [currentUser, users, courses]);
+
+  // Load students for assign student functionality
+  useEffect(() => {
+    if (users.length > 0 && !areStudentsLoaded) {
+      const studentsData = [];
+      users.forEach((user) => {
+        if (user.isStudent) {
+          const student = { ...user, id: user.id };
+          studentsData.push(student);
+        }
+      });
+      setStudents(studentsData);
+      setAreStudentsLoaded(true);
+    }
+  }, [users, areStudentsLoaded]);
+
+  // Handle focus states
+  useEffect(() => {
+    if (focused && focused !== "assigned-course-name") {
+      setShowCourseResults(false);
+    } else if (focused && focused !== "assigned-user") {
+      setShowUserResults(false);
+    }
+  }, [focused]);
+
+  useEffect(() => {
+    if (studentFocused && studentFocused !== "assigned-course-name") {
+      setShowStudentCourseResults(false);
+    } else if (studentFocused && studentFocused !== "assigned-student") {
+      setShowStudentResults(false);
+    }
+  }, [studentFocused]);
   
   const state = { currentUser, history, newCourse, setNewCourse, user };
 
@@ -221,6 +303,189 @@ const NewCourse = (props) => {
   const handleCancelDelete = () => {
     setConfirmDelete(null);
     setDeleteError(null);
+  };
+
+  // Assign Teacher handlers
+  const handleAssignedUser = (e) => {
+    setShowUserResults(true);
+    setIsUserFound(false);
+    setIsCourseFound(false);
+    setFilteredUsers(
+      users.filter((f) =>
+        f.username.toLowerCase().includes(e.target.value.toLowerCase())
+      )
+    );
+    setAssignedCourse({
+      ...assignedCourse,
+      assignedUser: { username: e.target.value },
+    });
+  };
+
+  const handleCourseName = (e) => {
+    setShowCourseResults(true);
+    setIsCourseFound(false);
+    setAssignedCourse({
+      ...assignedCourse,
+      course_name: e.target.value,
+    });
+
+    if (e.target.value.length > 0) {
+      setFilteredCourses(
+        courses.filter((f) => {
+          if (
+            !f.students?.some((s) => {
+              return s._id?.toString() === selectedUser._id?.toString();
+            }) &&
+            (f.courseName
+              ?.toLowerCase()
+              .includes(e.target.value.toLowerCase()) ||
+              f.courseInstructor
+                ?.toLowerCase()
+                .includes(e.target.value.toLowerCase()))
+          ) {
+            return f;
+          } else {
+            return "";
+          }
+        })
+      );
+    } else {
+      setFilteredCourses(
+        courses.filter((f) => {
+          if (
+            !f.students?.some((s) => {
+              return s._id?.toString() === selectedUser._id?.toString();
+            })
+          ) {
+            return f;
+          } else {
+            return "";
+          }
+        })
+      );
+    }
+  };
+
+  const handleSelectedUser = (user) => {
+    setShowUserResults(false);
+    if (user.username !== assignedCourse.assignedUser) {
+      setSelectedUser(user);
+      setShowCourseResults(false);
+      setIsCourseFound(false);
+      setIsUserFound(true);
+      setAssignedCourse({ assignedUser: user });
+      
+      const userInput = document.getElementById("assigned-user");
+      if (userInput) userInput.value = user.username;
+      
+      if (filteredCourses.length) {
+        const courseInput = document.getElementById("assigned-course-name");
+        if (courseInput) courseInput.value = "";
+      }
+      setFilteredCourses(
+        courses.filter((f) => {
+          if (
+            !f.students?.some((s) => {
+              return s._id?.toString() === user._id?.toString();
+            })
+          ) {
+            return f;
+          } else {
+            return "";
+          }
+        })
+      );
+    }
+  };
+
+  const handleSelectedCourse = (course) => {
+    setIsAssignedCourseLoading(true);
+    setIsCourseFound(true);
+    setShowCourseResults(false);
+    selectCourse({
+      currentUser,
+      assignedCourse,
+      setAssignedCourse,
+      setIsAssignedCourseLoading,
+      course,
+    });
+
+    const courseInput = document.getElementById("assigned-course-name");
+    if (courseInput) {
+      courseInput.value = `Name: ${course.courseName || course.course_name}, Instructor: ${course.courseInstructor || course.instructor?.username}`;
+    }
+  };
+
+  // Assign Student handlers
+  const handleAssignedStudent = (e) => {
+    setShowStudentResults(true);
+    setIsStudentFound(false);
+    setIsStudentCourseFound(false);
+    setFilteredStudents(
+      students.filter((s) =>
+        s.username.toLowerCase().includes(e.target.value.toLowerCase())
+      )
+    );
+    setStudentAssignedCourse({
+      ...studentAssignedCourse,
+      student: { username: e.target.value },
+    });
+  };
+
+  const handleStudentCourseName = (e) => {
+    setShowStudentCourseResults(true);
+    setIsStudentCourseFound(false);
+    setStudentAssignedCourse({
+      ...studentAssignedCourse,
+      course_name: e.target.value,
+    });
+
+    if (e.target.value.length > 0) {
+      setStudentFilteredCourses(
+        courses.filter((c) => 
+          c.courseName?.toLowerCase().includes(e.target.value.toLowerCase())
+        )
+      );
+    } else {
+      setStudentFilteredCourses(courses);
+    }
+  };
+
+  const handleSelectedStudent = (student) => {
+    setShowStudentResults(false);
+    if (student.username !== studentAssignedCourse.student.username) {
+      setSelectedStudent(student);
+      setShowStudentCourseResults(false);
+      setIsStudentCourseFound(false);
+      setIsStudentFound(true);
+      setStudentAssignedCourse({ student });
+      
+      const studentInput = document.getElementById("assigned-student");
+      if (studentInput) studentInput.value = student.username;
+    }
+    
+    const courseInput = document.getElementById("assigned-course-name");
+    if (studentFilteredCourses.length && courseInput) {
+      courseInput.value = "";
+    }
+  };
+
+  const handleSelectedStudentCourse = (course) => {
+    setIsStudentAssignedCourseLoading(true);
+    setIsStudentCourseFound(true);
+    setShowStudentCourseResults(false);
+    selectCourse({
+      currentUser,
+      assignedCourse: studentAssignedCourse,
+      setAssignedCourse: setStudentAssignedCourse,
+      setIsAssignedCourseLoading: setIsStudentAssignedCourseLoading,
+      course,
+    });
+    
+    const courseInput = document.getElementById("assigned-course-name");
+    if (courseInput) {
+      courseInput.value = `Name: ${course.courseName || course.course_name}, Instructor: ${course.courseInstructor || course.instructor?.username}`;
+    }
   };
 
   const renderCourseTable = () => {
@@ -441,42 +706,69 @@ const NewCourse = (props) => {
           <nav className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
             <button
               onClick={() => setActiveTab("create")}
-              className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                 activeTab === "create"
                   ? "bg-white text-[#F38315] shadow"
                   : "text-gray-600 hover:text-gray-800"
               }`}
             >
-              <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              Create Course
+              Create
             </button>
             <button
               onClick={() => setActiveTab("manage")}
-              className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                 activeTab === "manage"
                   ? "bg-white text-[#F38315] shadow"
                   : "text-gray-600 hover:text-gray-800"
               }`}
             >
-              <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
-              Manage Courses ({localCourses.length})
+              Manage ({localCourses.length})
             </button>
             <button
               onClick={() => setActiveTab("pending")}
-              className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                 activeTab === "pending"
                   ? "bg-white text-[#F38315] shadow"
                   : "text-gray-600 hover:text-gray-800"
               }`}
             >
-              <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Pending ({pendingCourses.reduce((total, user) => total + user.pendingCourses.length, 0)})
+            </button>
+            <button
+              onClick={() => setActiveTab("assign-teacher")}
+              className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                activeTab === "assign-teacher"
+                  ? "bg-white text-[#F38315] shadow"
+                  : "text-gray-600 hover:text-gray-800"
+              }`}
+            >
+              <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              Assign Teacher
+            </button>
+            <button
+              onClick={() => setActiveTab("assign-student")}
+              className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                activeTab === "assign-student"
+                  ? "bg-white text-[#F38315] shadow"
+                  : "text-gray-600 hover:text-gray-800"
+              }`}
+            >
+              <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+              </svg>
+              Assign Student
             </button>
           </nav>
         </div>
@@ -498,7 +790,7 @@ const NewCourse = (props) => {
             </Suspense>
           ) : activeTab === "manage" ? (
             renderCourseTable()
-          ) : (
+          ) : activeTab === "pending" ? (
             // Pending Courses Tab
             <div className="h-full">
               {usersAreLoading ? (
@@ -561,7 +853,150 @@ const NewCourse = (props) => {
                 </Suspense>
               )}
             </div>
-          )}
+          ) : activeTab === "assign-teacher" ? (
+            // Assign Teacher Tab
+            <div className="h-full space-y-6">
+              <div className="text-center mb-6">
+                <Components.SubHeading className="!text-2xl mb-2">
+                  Assign a <span className="text-[#F38315]">Teacher</span> to Course
+                </Components.SubHeading>
+                <Components.Paragraph className="text-gray-600">
+                  Select a teacher and assign them to an existing course
+                </Components.Paragraph>
+              </div>
+              
+              <Suspense fallback={
+                <div className="flex items-center justify-center py-12">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F38315] mx-auto mb-4"></div>
+                    <Components.Paragraph>Loading assignment form...</Components.Paragraph>
+                  </div>
+                </div>
+              }>
+                <AssignCourseForm
+                  users={users}
+                  courses={courses}
+                  handleAssignedUser={handleAssignedUser}
+                  handleCourseName={handleCourseName}
+                  handleSelectedUser={handleSelectedUser}
+                  handleSelectedCourse={handleSelectedCourse}
+                  setShowUserResults={setShowUserResults}
+                  setFocused={setFocused}
+                  setFilteredUsers={setFilteredUsers}
+                  filteredUsers={filteredUsers}
+                  showUserResults={showUserResults}
+                  isUserFound={isUserFound}
+                  isCourseFound={isCourseFound}
+                  setShowCourseResults={setShowCourseResults}
+                  filteredCourses={filteredCourses}
+                  showCourseResults={showCourseResults}
+                />
+              </Suspense>
+
+              {isCourseFound && (
+                <Suspense fallback={
+                  <div className="flex items-center justify-center py-12">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F38315] mx-auto mb-4"></div>
+                      <Components.Paragraph>Loading course details...</Components.Paragraph>
+                    </div>
+                  </div>
+                }>
+                  <CourseDetails
+                    assignedCourse={assignedCourse}
+                    isAssignedCourseLoading={isAssignedCourseLoading}
+                    setAssignedCourse={setAssignedCourse}
+                    setIsCourseFound={setIsCourseFound}
+                    assignCourse={assignCourse}
+                    isUserFound={isUserFound}
+                    selectedUser={selectedUser}
+                    currentUser={currentUser}
+                    setIsUserFound={setIsUserFound}
+                    setLoading={setIsAssigningCourse}
+                    isAssigningCourse={isAssigningCourse}
+                  />
+                </Suspense>
+              )}
+            </div>
+          ) : activeTab === "assign-student" ? (
+            // Assign Student Tab
+            <div className="h-full space-y-6">
+              <div className="text-center mb-6">
+                <Components.SubHeading className="!text-2xl mb-2">
+                  Assign <span className="text-[#F38315]">Student</span> to Course
+                </Components.SubHeading>
+                <Components.Paragraph className="text-gray-600">
+                  Select a student and enroll them in a course
+                </Components.Paragraph>
+              </div>
+              
+              <Suspense fallback={
+                <div className="flex items-center justify-center py-12">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F38315] mx-auto mb-4"></div>
+                    <Components.Paragraph>Loading student search...</Components.Paragraph>
+                  </div>
+                </div>
+              }>
+                <StudentSearch
+                  showStudentResults={showStudentResults}
+                  setShowStudentResults={setShowStudentResults}
+                  setFocused={setStudentFocused}
+                  handleAssignedStudent={handleAssignedStudent}
+                  filteredStudents={filteredStudents}
+                  handleSelectedStudent={handleSelectedStudent}
+                  students={students}
+                />
+              </Suspense>
+
+              {isStudentFound && (
+                <Suspense fallback={
+                  <div className="flex items-center justify-center py-12">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F38315] mx-auto mb-4"></div>
+                      <Components.Paragraph>Loading course search...</Components.Paragraph>
+                    </div>
+                  </div>
+                }>
+                  <CourseSearch
+                    isCourseFound={isStudentCourseFound}
+                    showCourseResults={showStudentCourseResults}
+                    setShowCourseResults={setShowStudentCourseResults}
+                    setFocused={setStudentFocused}
+                    handleCourseName={handleStudentCourseName}
+                    courses={courses}
+                    filteredCourses={studentFilteredCourses}
+                    handleSelectedCourse={handleSelectedStudentCourse}
+                  />
+                </Suspense>
+              )}
+
+              {isStudentCourseFound && (
+                <Suspense fallback={
+                  <div className="flex items-center justify-center py-12">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F38315] mx-auto mb-4"></div>
+                      <Components.Paragraph>Loading course details...</Components.Paragraph>
+                    </div>
+                  </div>
+                }>
+                  <StudentCourseDetails
+                    isAssignedCourseLoading={isStudentAssignedCourseLoading}
+                    assignedCourse={studentAssignedCourse}
+                    imgPlaceholder="https://d10grw5om5v513.cloudfront.net/assets/images/image-placeholder.png"
+                    currentUser={currentUser}
+                    selectedStudent={selectedStudent}
+                    setLoading={setIsAssigningStudent}
+                    setIsAssigningStudent={setIsAssigningStudent}
+                    isAssigningStudent={isAssigningStudent}
+                    setAreCoursesLoaded={setAreCoursesLoaded}
+                    setAssignedCourse={setStudentAssignedCourse}
+                    assignStudentToCourse={assignStudentToCourse}
+                  />
+                </Suspense>
+              )}
+            </div>
+          ) : null}
         </div>
       </div>
 
