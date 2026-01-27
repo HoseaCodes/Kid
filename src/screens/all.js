@@ -59,7 +59,6 @@ import UnifiedInvoiceTable from "./Invoice/UnifiedInvoiceTable.js";
 // Invoice Screens
 
 import AssignCourse from "./Dashboard/Admin/AssignCourse.js";
-import DeleteCourse from "./Dashboard/Admin/DeleteCourse.js";
 import PendingCourse from "./Dashboard/Admin/PendingCourse.js";
 import PendingCourses from "./Dashboard/Admin/PendingCourses.js";
 import ViewStudent from "./Dashboard/ViewStudent";
@@ -122,7 +121,6 @@ export {
   ViewDashboardCourses,
   Analytics,
   UnifiedInvoiceTable,
-  DeleteCourse,
   AssignStudentCourse,
   Terms,
   Privacy,

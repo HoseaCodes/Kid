@@ -171,7 +171,6 @@ function App() {
           <Route exact path="/dashboard/admin/course/:id/chapters/:id" element={<Screens.UpdateChapter {...states} user={user} />} />
           {/* issue rendering */}
           <Route exact path="/dashboard/admin/course/new" element={<Screens.NewCourse {...states} user={user} />} />
-          <Route exact path="/dashboard/admin/courses/delete" element={<Screens.DeleteCourse {...states} user={user} />} />
           <Route exact path="/dashboard/admin/courses/pending" element={<Screens.PendingCourses {...states} user={user} />} />
           <Route exact path="/dashboard/admin/invoice/new2" element={<Screens.NewInvoice2 {...states} user={user} />} />
           <Route exact path="/admin/user/:userid/pendingcourse/:courseid" element={<Screens.PendingCourse {...states} user={user} />} />

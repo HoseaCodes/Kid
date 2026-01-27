@@ -56,7 +56,6 @@ export default function Sidebar({ page, setPage }) {
     { name: "Assign Teacher", icon: <MdAssignmentAdd page="assigncourse" />, path: "/dashboard/admin/course/assign" },
     { name: "Assign Student", icon: <MdAssignmentAdd page="assigncourse" />, path: "/dashboard/admin/student/course/assign" },
     { name: "Pending Courses", icon: <RiPassPendingFill />, path: "/dashboard/admin/courses/pending" },
-    { name: "Delete Courses", icon: <RiPassPendingFill />, path: "/dashboard/admin/courses/delete" },
     { name: "Create Invoice", icon: <RiPassPendingFill />, path: "/dashboard/admin/invoice/new" },
     { name: "View Invoices", icon: <RiPassPendingFill />, path: "/dashboard/admin/invoices/all" },
     { name: "User Profile", icon: <RiPassPendingFill />, path: "/dashboard/profile" },
