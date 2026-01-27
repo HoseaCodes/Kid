@@ -69,6 +69,12 @@ const NewInvoice = (props) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   
+  // Delete confirmation modal states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [invoiceToDelete, setInvoiceToDelete] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+
   // Edit Invoice states
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [edit, setEdit] = useState(false);
@@ -269,7 +275,7 @@ const NewInvoice = (props) => {
     setIsTransactionLoaded(true);
     setEdit(false);
     setActiveTab("view");
-    history(`/dashboard/transaction/${transaction._id}/invoice`);
+    history(`/dashboard/invoices/${transaction._id}`);
   };
 
   // Handle editing an invoice
@@ -279,6 +285,121 @@ const NewInvoice = (props) => {
     setIsTransactionLoaded(true);
     setEdit(true);
     setActiveTab("view");
+  };
+
+  // Handle delete invoice confirmation
+  const handleDeleteInvoice = (transaction) => {
+    setInvoiceToDelete(transaction);
+    setShowDeleteModal(true);
+  };
+
+  // Handle delete invoice confirmation
+  const confirmDeleteInvoice = async () => {
+    if (!invoiceToDelete) return;
+
+    setDeleteLoading(true);
+    
+    try {
+      // Replace this with your actual delete API call
+      // const response = await fetch(`/api/transactions/${invoiceToDelete._id}`, {
+      //   method: 'DELETE',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Authorization': `Bearer ${currentUser.token}` // if needed
+      //   }
+      // });
+      
+      // if (!response.ok) {
+      //   throw new Error('Failed to delete invoice');
+      // }
+
+      // Simulate API call for now
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Update local state by removing the deleted invoice
+      const updatedTransactions = localTransactions.filter(t => t._id !== invoiceToDelete._id);
+      setLocalTransactions(updatedTransactions);
+      
+      // Update filtered and searched items
+      const updatedFiltered = filteredInvoices.filter(t => t._id !== invoiceToDelete._id);
+      setFilteredInvoices(updatedFiltered);
+      
+      const updatedSearched = searchedItems.filter(t => t._id !== invoiceToDelete._id);
+      setSearchedItems(updatedSearched);
+      
+      // Reset pagination if needed
+      const newTotalPages = Math.ceil(updatedSearched.length / itemsPerPage);
+      if (currentPage > newTotalPages && newTotalPages > 0) {
+        setCurrentPage(newTotalPages);
+      }
+      
+      // Close modal and reset state
+      setShowDeleteModal(false);
+      setInvoiceToDelete(null);
+      
+      // Optional: Show success notification
+      // showNotification('Invoice deleted successfully', 'success');
+      
+    } catch (error) {
+      console.error('Error deleting invoice:', error);
+      // Optional: Show error notification
+      // showNotification('Failed to delete invoice. Please try again.', 'error');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  // Handle cancel delete
+  const cancelDeleteInvoice = () => {
+    setShowDeleteModal(false);
+    setInvoiceToDelete(null);
+  };
+
+  // Handle confirmed delete
+  const handleConfirmDelete = async () => {
+    if (!invoiceToDelete) return;
+    
+    setDeleteLoading(true);
+    try {
+      // Add your delete API call here
+      // await deleteTransaction(invoiceToDelete._id);
+      
+      // For now, we'll simulate the deletion by removing from local state
+      const updatedTransactions = localTransactions.filter(t => t._id !== invoiceToDelete._id);
+      setLocalTransactions(updatedTransactions);
+      
+      // Update filtered results as well
+      const updatedFiltered = filteredInvoices.filter(t => t._id !== invoiceToDelete._id);
+      setFilteredInvoices(updatedFiltered);
+      
+      const updatedSearched = searchedItems.filter(t => t._id !== invoiceToDelete._id);
+      setSearchedItems(updatedSearched);
+      
+      // Reset page if current page becomes empty
+      const newTotalPages = Math.ceil(updatedSearched.length / itemsPerPage);
+      if (currentPage > newTotalPages && newTotalPages > 0) {
+        setCurrentPage(newTotalPages);
+      }
+      
+      // Close modal and reset state
+      setDeleteConfirmOpen(false);
+      setInvoiceToDelete(null);
+      
+      // TODO: Add success notification here
+      console.log(`Invoice ${invoiceToDelete._id} deleted successfully`);
+      
+    } catch (error) {
+      console.error("Error deleting invoice:", error);
+      // TODO: Add error notification here
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  // Handle cancel delete
+  const handleCancelDelete = () => {
+    setDeleteConfirmOpen(false);
+    setInvoiceToDelete(null);
   };
 
   // Enhanced render invoices table with search, filters, and pagination
@@ -508,6 +629,12 @@ const NewInvoice = (props) => {
                         className="text-blue-600 hover:text-blue-800 font-medium"
                       >
                         Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteInvoice(transaction)}
+                        className="text-red-600 hover:text-red-800 font-medium"
+                      >
+                        Delete
                       </button>
                     </div>
                   </td>
@@ -756,6 +883,67 @@ const NewInvoice = (props) => {
             </div>
           ) : null}
         </div>
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+            <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+              <div className="mt-3 text-center">
+                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                  <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mt-4">
+                  Delete Invoice
+                </h3>
+                <div className="mt-2 px-7 py-3">
+                  <p className="text-sm text-gray-500">
+                    Are you sure you want to delete this invoice? This action cannot be undone.
+                  </p>
+                  {invoiceToDelete && (
+                    <div className="mt-3 p-3 bg-gray-50 rounded-md">
+                      <p className="text-sm font-medium text-gray-900">
+                        Invoice #{invoiceToDelete._id?.slice(-8)}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {invoiceToDelete.user?.username || invoiceToDelete.username || 'Unknown Client'} - ${Number(invoiceToDelete.cart?.total_price || 0).toFixed(2)}
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <div className="items-center px-4 py-3">
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={cancelDeleteInvoice}
+                      disabled={deleteLoading}
+                      className="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={confirmDeleteInvoice}
+                      disabled={deleteLoading}
+                      className="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    >
+                      {deleteLoading ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Deleting...
+                        </>
+                      ) : (
+                        'Delete Invoice'
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}           
       </div>
     </Layout>
   );

@@ -53,6 +53,7 @@ export default function Sidebar({ page, setPage }) {
     { name: "View All Courses", icon: <RiPassPendingFill />, path: "/dashboard/courses/browse" },
     { name: "Manage Courses", icon: <IoIosCreate />, path: "/dashboard/admin/management/courses" },
     { name: "Manage Invoices", icon: <RiPassPendingFill />, path: "/dashboard/admin/management/invoices" },
+    { name: "Manage Analytics", icon: <MdAssignmentAdd />, path: "/dashboard/admin/analytics" },
     { name: "User Profile", icon: <RiPassPendingFill />, path: "/dashboard/profile" },
     { name: "Create Zoom", icon: <BiLogoZoom page="zoom" />, path: "/dashboard/zoom" },
     { name: "My Zoom-Sessions", icon: <BiLogoZoom page="zoom" />, path: "/dashboard/zoom/mymeetings" },

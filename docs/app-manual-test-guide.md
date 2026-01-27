@@ -24,8 +24,8 @@ This guide covers manual testing for all user roles and major endpoints/features
 - [x] **Dashboard**: Admin dashboard loads with analytics and stats.
 - [x] **User Management**: Can view, add, edit, and remove users.
 - [x] **Course Management**: Can create, edit, and delete courses.
-- [ ] **Transactions**: Can view all transactions and filter/search.
-- [ ] **Analytics**: Can view analytics and reports.
+- [x] **Transactions**: Can view all transactions and filter/search.
+- [x] **Analytics**: Can view analytics and reports.
 - [ ] **Settings**: Can update app-wide settings.
 - [ ] **Logout**: Can log out and is redirected to login page.
 
