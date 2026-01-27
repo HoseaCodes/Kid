@@ -55,7 +55,7 @@ export default function Students({
                     <td className="border px-4 py-2">
                       <Link
                         className="btn btn-primary bg-blue-500 text-white py-1 px-3 rounded"
-                        to={`/dashboard/course/${id}/students/${student.username}`}
+                        to={`/dashboard/courses/${id}/students/${student.username}`}
                       >
                         View
                       </Link>

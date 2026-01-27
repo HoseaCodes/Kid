@@ -22,7 +22,7 @@ const CourseCard = ({
         <img
           className="object-cover w-full h-full"
           alt={title}
-          src={imageUrl}
+          src={imageUrl || "https://d10grw5om5v513.cloudfront.net/assets/images/image-placeholder.png"}
         />
       </div>
       <div className="flex flex-col pt-2">
