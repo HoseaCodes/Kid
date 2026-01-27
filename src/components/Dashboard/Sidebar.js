@@ -51,15 +51,15 @@ export default function Sidebar({ page, setPage }) {
   const adminRoutes = [
     { name: "Dashboard", icon: <RiPassPendingFill />, path: "/dashboard" },
     { name: "View All Courses", icon: <RiPassPendingFill />, path: "/dashboard/courses/browse" },
+    { name: "Manage Analytics", icon: <MdAssignmentAdd />, path: "/dashboard/admin/analytics" },
     { name: "Manage Courses", icon: <IoIosCreate />, path: "/dashboard/admin/management/courses" },
     { name: "Manage Invoices", icon: <RiPassPendingFill />, path: "/dashboard/admin/management/invoices" },
-    { name: "Manage Analytics", icon: <MdAssignmentAdd />, path: "/dashboard/admin/analytics" },
-    { name: "User Profile", icon: <RiPassPendingFill />, path: "/dashboard/profile" },
+    { name: "Managem Users", icon: <RiPassPendingFill />, path: "/dashboard/admin/management/users" },
+    { name: "My Profile", icon: <RiPassPendingFill />, path: "/dashboard/profile" },
     { name: "Create Zoom", icon: <BiLogoZoom page="zoom" />, path: "/dashboard/zoom" },
     { name: "My Zoom-Sessions", icon: <BiLogoZoom page="zoom" />, path: "/dashboard/zoom/mymeetings" },
     { name: "Assesments", icon: <Assessments page="assessments" />, path: "/dashboard/assesment" },
     { name: "Suggestions", icon: <RiPassPendingFill />, path: "/dashboard/suggestions" },
-    { name: "User Management", icon: <RiPassPendingFill />, path: "/dashboard/admin/users" },
 ];
 
   const routes = isAdmin

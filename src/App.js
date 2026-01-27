@@ -164,11 +164,11 @@ function App() {
           <Route exact path="/dashboard/admin/courses/edit/:id" element={<Screens.UpdateCourse {...states} user={user} />} />
           <Route exact path="/dashboard/admin/management/courses" element={<Screens.NewCourse {...states} user={user} />} />
           <Route exact path="/dashboard/admin/management/invoices" element={<Screens.NewInvoice {...states} user={user} />} />
+          <Route exact path="/dashboard/admin/management/users" element={<Screens.AdminUserManagementPage {...states} user={user} />} />
           {/* issue rendering */}
           <Route exact path="/dashboard/admin/course/:id/chapters/:id" element={<Screens.UpdateChapter {...states} user={user} />} />
           {/* issue rendering */}
           <Route exact path="/admin/user/:userid/pendingcourse/:courseid" element={<Screens.PendingCourse {...states} user={user} />} />
-          <Route exact path="/dashboard/admin/users" element={<Screens.AdminUserManagementPage {...states} user={user} />} />
           {/* Dashboard Admin Routes */}
 
           {/* 404 Route */}

@@ -26,8 +26,8 @@ This guide covers manual testing for all user roles and major endpoints/features
 - [x] **Course Management**: Can create, edit, and delete courses.
 - [x] **Transactions**: Can view all transactions and filter/search.
 - [x] **Analytics**: Can view analytics and reports.
-- [ ] **Settings**: Can update app-wide settings.
-- [ ] **Logout**: Can log out and is redirected to login page.
+- [ ] ~~**Settings**: Can update app-wide settings.~~
+- [x] **Logout**: Can log out and is redirected to login page.
 
 ---
 
