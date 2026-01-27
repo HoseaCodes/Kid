@@ -923,7 +923,7 @@ const NewCourse = (props) => {
             <div className="h-full space-y-6">
               <div className="text-center mb-6">
                 <Components.SubHeading className="!text-2xl mb-2">
-                  Assign <span className="text-[#F38315]">Student</span> to Course
+                  Assign a <span className="text-[#F38315]">Student</span> to Course
                 </Components.SubHeading>
                 <Components.Paragraph className="text-gray-600">
                   Select a student and enroll them in a course

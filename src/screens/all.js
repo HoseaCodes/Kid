@@ -58,7 +58,6 @@ import Transactions from "./Invoice/Transactions.js";
 import UnifiedInvoiceTable from "./Invoice/UnifiedInvoiceTable.js";
 // Invoice Screens
 
-import AssignCourse from "./Dashboard/Admin/AssignCourse.js";
 import PendingCourse from "./Dashboard/Admin/PendingCourse.js";
 import ViewStudent from "./Dashboard/ViewStudent";
 import UpdateChapter from "./Dashboard/UpdateChapter";
@@ -106,7 +105,6 @@ export {
   Products,
   Cart,
   NewCourse,
-  AssignCourse,
   PendingCourse,
   NewInvoice,
   NewInvoice2,
