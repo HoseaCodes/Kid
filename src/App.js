@@ -175,6 +175,7 @@ function App() {
           <Route exact path="/dashboard/admin/courses/pending" element={<Screens.PendingCourses {...states} user={user} />} />
           <Route exact path="/dashboard/admin/invoice/new2" element={<Screens.NewInvoice2 {...states} user={user} />} />
           <Route exact path="/admin/user/:userid/pendingcourse/:courseid" element={<Screens.PendingCourse {...states} user={user} />} />
+          <Route exact path="/dashboard/admin/users" element={<Screens.AdminUserManagementPage {...states} user={user} />} />
           {/* Dashboard Admin Routes */}
 
           {/* 404 Route */}

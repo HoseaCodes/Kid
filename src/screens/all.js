@@ -25,6 +25,7 @@ import AdminZoom from "./Admin/AdminZoom";
 import AdminRewards from "./Admin/AdminRewards";
 import AdminPurchase from "./Admin/AdminPurchase";
 import AdminThankyou from "./Admin/AdminThankyou";
+import AdminUserManagementPage from "./Dashboard/Admin/UserManagement";
 
 // Zoom Screens
 import CreateMeeting from "./Zoom/CreateMeeting";
@@ -125,5 +126,6 @@ export {
   AssignStudentCourse,
   Terms,
   Privacy,
-  WebRTCDemo
+  WebRTCDemo,
+  AdminUserManagementPage
 };

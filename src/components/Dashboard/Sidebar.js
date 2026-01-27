@@ -64,6 +64,7 @@ export default function Sidebar({ page, setPage }) {
     { name: "My Zoom-Sessions", icon: <BiLogoZoom page="zoom" />, path: "/dashboard/zoom/mymeetings" },
     { name: "Assesments", icon: <Assessments page="assessments" />, path: "/dashboard/assesment" },
     { name: "Suggestions", icon: <RiPassPendingFill />, path: "/dashboard/suggestions" },
+    { name: "User Management", icon: <RiPassPendingFill />, path: "/dashboard/admin/users" },
 ];
 
   const routes = isAdmin
