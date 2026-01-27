@@ -166,12 +166,11 @@ function App() {
           <Route exact path="/dashboard/admin/analytics" element={<Screens.Analytics {...states} user={user} />} />
           <Route exact path="/dashboard/admin/course/assign" element={<Screens.AssignCourse {...states} user={user} />} />
           <Route exact path="/dashboard/admin/student/course/assign" element={<Screens.AssignStudentCourse {...states} user={user} />} />
-          <Route exact path="/dashboard/admin/course/:id" element={<Screens.UpdateCourse {...states} user={user} />} />
+          <Route exact path="/dashboard/courses/edit/:id" element={<Screens.UpdateCourse {...states} user={user} />} />
           {/* issue rendering */}
           <Route exact path="/dashboard/admin/course/:id/chapters/:id" element={<Screens.UpdateChapter {...states} user={user} />} />
           {/* issue rendering */}
-          <Route exact path="/dashboard/admin/course/new" element={<Screens.NewCourse {...states} user={user} />} />
-          <Route exact path="/dashboard/admin/courses/pending" element={<Screens.PendingCourses {...states} user={user} />} />
+          <Route exact path="/dashboard/admin/management/courses" element={<Screens.NewCourse {...states} user={user} />} />
           <Route exact path="/dashboard/admin/invoice/new2" element={<Screens.NewInvoice2 {...states} user={user} />} />
           <Route exact path="/admin/user/:userid/pendingcourse/:courseid" element={<Screens.PendingCourse {...states} user={user} />} />
           <Route exact path="/dashboard/admin/users" element={<Screens.AdminUserManagementPage {...states} user={user} />} />

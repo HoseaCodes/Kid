@@ -60,7 +60,6 @@ import UnifiedInvoiceTable from "./Invoice/UnifiedInvoiceTable.js";
 
 import AssignCourse from "./Dashboard/Admin/AssignCourse.js";
 import PendingCourse from "./Dashboard/Admin/PendingCourse.js";
-import PendingCourses from "./Dashboard/Admin/PendingCourses.js";
 import ViewStudent from "./Dashboard/ViewStudent";
 import UpdateChapter from "./Dashboard/UpdateChapter";
 import Search from "./Dashboard/Search.js";	 
@@ -109,7 +108,6 @@ export {
   NewCourse,
   AssignCourse,
   PendingCourse,
-  PendingCourses,
   NewInvoice,
   NewInvoice2,
   ViewStudent,

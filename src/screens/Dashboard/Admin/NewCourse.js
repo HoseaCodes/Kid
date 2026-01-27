@@ -4,16 +4,133 @@ import { db } from "../../../lib/firebase";
 import { deleteDoc, doc } from "firebase/firestore";
 import Layout from "../../../components/Dashboard/Layout";
 import useGetAllCourses from "../../../hooks/useGetAllCourses";
+import useGetAllUsers from "../../../hooks/useGetAllUsers";
+import { searchCourse } from "../../../utils/courseFunctions";
 import * as Components from "../../../components/all";
 
 const StepForm = lazy(() =>
   import("../../../components/Form/MultStep/StepForm")
 );
+const PendingCoursesList = lazy(() => 
+  import("../../../components/Courses/PendingCourses")
+);
+
+// Action Dropdown Component
+const ActionDropdown = ({ course, onDelete, isDeleting }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const courseId = course.courseId || course.id;
+
+  const handleViewDetails = () => {
+    navigate(`/dashboard/courses/${courseId}`);
+    setIsOpen(false);
+  };
+
+  const handleEdit = () => {
+    navigate(`/dashboard/courses/edit/${courseId}`);
+    setIsOpen(false);
+  };
+
+  const handleDuplicate = () => {
+    // Implementation for duplicating a course
+    console.log("Duplicate course:", courseId);
+    setIsOpen(false);
+  };
+
+  const handleDelete = () => {
+    onDelete();
+    setIsOpen(false);
+  };
+
+  return (
+    <div className="relative inline-block text-left">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        disabled={isDeleting}
+        className="p-2 rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v.01M12 12v.01M12 18v.01" />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 z-10" 
+            onClick={() => setIsOpen(false)}
+          />
+          
+          {/* Dropdown Menu */}
+          <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg ring-1 ring-black ring-opacity-5 rounded-md z-20">
+            <div className="py-1">
+              <button
+                onClick={handleViewDetails}
+                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                View Details
+              </button>
+              
+              <button
+                onClick={handleEdit}
+                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Edit Course
+              </button>
+              
+              <button
+                onClick={handleDuplicate}
+                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Duplicate
+              </button>
+              
+              <div className="border-t border-gray-100 my-1" />
+              
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isDeleting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-red-400 mr-3"></div>
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Delete
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
 
 const NewCourse = (props) => {
   const history = useNavigate();
   const { currentUser, loading, user } = props;
   const { courses, error, isLoading, refetch } = useGetAllCourses();
+  const { users, userError, usersAreLoading } = useGetAllUsers();
   
   const [newCourse, setNewCourse] = useState({
     num_of_students: 0,
@@ -27,12 +144,39 @@ const NewCourse = (props) => {
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [deleteError, setDeleteError] = useState(null);
 
+  // Pending courses state
+  const [pendingCourses, setPendingCourses] = useState([]);
+  const [searchedItems, setSearchedItems] = useState([]);
+  const [coursesSlice, setCoursesSlice] = useState([0, 10]);
+
   // Sync local courses with hook data
   useEffect(() => {
     if (courses && courses.length > 0) {
       setLocalCourses(courses);
     }
   }, [courses]);
+
+  // Sync pending courses data
+  useEffect(() => {
+    const fetchPendingCourses = () => {
+      if (currentUser && users.length > 0 && courses.length > 0) {
+        const usersWithPendingCourses = users.filter(
+          (user) => user.pendingCourses && user.pendingCourses.length > 0
+        );
+        
+        const pendingCoursesData = usersWithPendingCourses.map((user) => {
+          const userPendingCourses = courses.filter((course) => {
+            return user.pendingCourses.includes(course.courseId || course.id);
+          });
+          return { ...user, pendingCourses: userPendingCourses };
+        });
+        
+        setPendingCourses(pendingCoursesData);
+        setSearchedItems(pendingCoursesData);
+      }
+    };
+    fetchPendingCourses();
+  }, [currentUser, users, courses]);
   
   const state = { currentUser, history, newCourse, setNewCourse, user };
 
@@ -241,29 +385,11 @@ const NewCourse = (props) => {
                       {course.num_of_students || course.students?.length || 0}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button
-                        onClick={() => handleDeleteClick(course)}
-                        disabled={isDeleting}
-                        className={`inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md transition-colors ${
-                          isDeleting
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            : 'text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'
-                        }`}
-                      >
-                        {isDeleting ? (
-                          <>
-                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-400 mr-2"></div>
-                            Deleting...
-                          </>
-                        ) : (
-                          <>
-                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                            Delete
-                          </>
-                        )}
-                      </button>
+                      <ActionDropdown 
+                        course={course} 
+                        onDelete={() => handleDeleteClick(course)}
+                        isDeleting={isDeleting}
+                      />
                     </td>
                   </tr>
                 );
@@ -339,6 +465,19 @@ const NewCourse = (props) => {
               </svg>
               Manage Courses ({localCourses.length})
             </button>
+            <button
+              onClick={() => setActiveTab("pending")}
+              className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                activeTab === "pending"
+                  ? "bg-white text-[#F38315] shadow"
+                  : "text-gray-600 hover:text-gray-800"
+              }`}
+            >
+              <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Pending ({pendingCourses.reduce((total, user) => total + user.pendingCourses.length, 0)})
+            </button>
           </nav>
         </div>
 
@@ -357,8 +496,71 @@ const NewCourse = (props) => {
             >
               <StepForm state={state} />
             </Suspense>
-          ) : (
+          ) : activeTab === "manage" ? (
             renderCourseTable()
+          ) : (
+            // Pending Courses Tab
+            <div className="h-full">
+              {usersAreLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F38315] mx-auto mb-4"></div>
+                    <Components.Paragraph>Loading pending courses...</Components.Paragraph>
+                  </div>
+                </div>
+              ) : userError ? (
+                <div className="text-center py-12">
+                  <svg className="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <Components.SubHeading className="!text-xl text-red-600 mb-2">
+                    Error Loading Pending Courses
+                  </Components.SubHeading>
+                  <Components.Paragraph className="text-gray-600">
+                    {userError.message}
+                  </Components.Paragraph>
+                </div>
+              ) : !searchedItems.length ? (
+                <div className="text-center py-12">
+                  <svg className="w-20 h-20 text-gray-400 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <Components.SubHeading className="!text-2xl text-gray-500 mb-4">
+                    All Caught Up! 🎉
+                  </Components.SubHeading>
+                  <Components.Paragraph className="text-gray-400 mb-6 max-w-md mx-auto">
+                    There are no pending courses to review at this time. New submissions will appear here when they need your approval.
+                  </Components.Paragraph>
+                  <button
+                    onClick={() => setActiveTab("create")}
+                    className="px-6 py-3 bg-[#F38315] text-white rounded-md hover:bg-[#e57309] transition-colors font-medium"
+                  >
+                    Create New Course
+                  </button>
+                </div>
+              ) : (
+                <Suspense 
+                  fallback={
+                    <div className="flex items-center justify-center py-12">
+                      <div className="text-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F38315] mx-auto mb-4"></div>
+                        <Components.Paragraph>Loading pending courses list...</Components.Paragraph>
+                      </div>
+                    </div>
+                  }
+                >
+                  <PendingCoursesList
+                    pendingCourses={pendingCourses}
+                    searchCourse={searchCourse}
+                    setSearchedItems={setSearchedItems}
+                    searchedItems={searchedItems}
+                    currentUser={currentUser}
+                    setCoursesSlice={setCoursesSlice}
+                    coursesSlice={coursesSlice}
+                  />
+                </Suspense>
+              )}
+            </div>
           )}
         </div>
       </div>

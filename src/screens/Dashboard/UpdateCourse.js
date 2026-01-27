@@ -33,18 +33,18 @@ const UpdateCourse = (props) => {
     }
   }, [currentUser, course]);
 
-  if (!currentUser) return <>Loading...</>;
+  if (!currentUser || !course) return <>Loading...</>;
 
   const requiredFields = [
-    course.courseName,
-    course.courseDescription,
-    course.classNum,
-    course.courseInstructor,
-    course.subject,
-    course.gradeLevel,
-    course.price,
-    course.imageUrl,
-    course.categoryId,
+    course?.courseName,
+    course?.courseDescription,
+    course?.classNum,
+    course?.courseInstructor,
+    course?.subject,
+    course?.gradeLevel,
+    course?.price,
+    course?.imageUrl,
+    course?.categoryId,
   ];
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter((field) => field).length;

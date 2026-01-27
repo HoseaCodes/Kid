@@ -50,12 +50,11 @@ export default function Sidebar({ page, setPage }) {
   
   const adminRoutes = [
     { name: "Dashboard", icon: <RiPassPendingFill />, path: "/dashboard" },
-    { name: "All Courses", icon: <RiPassPendingFill />, path: "/dashboard/courses/browse" },
+    { name: "View All Courses", icon: <RiPassPendingFill />, path: "/dashboard/courses/browse" },
     { name: "Teacher Courses", icon: <RiPassPendingFill />, path: "/dashboard/teacher/courses" },
-    { name: "Create Course", icon: <IoIosCreate />, path: "/dashboard/admin/course/new" },
+    { name: "Manage Courses", icon: <IoIosCreate />, path: "/dashboard/admin/management/courses" },
     { name: "Assign Teacher", icon: <MdAssignmentAdd page="assigncourse" />, path: "/dashboard/admin/course/assign" },
     { name: "Assign Student", icon: <MdAssignmentAdd page="assigncourse" />, path: "/dashboard/admin/student/course/assign" },
-    { name: "Pending Courses", icon: <RiPassPendingFill />, path: "/dashboard/admin/courses/pending" },
     { name: "Create Invoice", icon: <RiPassPendingFill />, path: "/dashboard/admin/invoice/new" },
     { name: "View Invoices", icon: <RiPassPendingFill />, path: "/dashboard/admin/invoices/all" },
     { name: "User Profile", icon: <RiPassPendingFill />, path: "/dashboard/profile" },
