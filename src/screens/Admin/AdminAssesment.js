@@ -14,7 +14,8 @@ import {
 	BarElement,
 } from "chart.js";
 import { Doughnut, Line } from "react-chartjs-2";
-import { QuizComponent } from 'ai-quiz';
+import { QuizComponent, ApiKeyGate } from 'ai-quiz';
+import { useQuizFetcher, usesQuizProxy } from "../../features/quiz/useQuizFetcher";
 import Layout from "../../components/Dashboard/Layout";
 import LazyLoad from "react-lazyload";
 
@@ -33,8 +34,26 @@ ChartJS.register(
 
 const charImage = "https://d10grw5om5v513.cloudfront.net/assets/images/character.png";
 
+/**
+ * The quiz, plus a key prompt when we are not yet going through our own
+ * backend. QuizComponent has no key UI of its own, so without this the
+ * browser fetcher throws "No Anthropic API key set" with no way to recover.
+ */
+function Quiz(props) {
+	if (usesQuizProxy) return <QuizComponent {...props} />;
+	return (
+		<ApiKeyGate
+			title="Add an Anthropic key to test"
+			description="The quiz service is not deployed yet, so generation uses a key you supply. Students will not need one."
+		>
+			<QuizComponent {...props} />
+		</ApiKeyGate>
+	);
+}
+
 export default function AdminAssesment() {
 	const [openQuiz, setOpenQuiz] = useState(false)
+	const quizFetcher = useQuizFetcher();
 	// doughnut chart
 	const doughnutData = {
 		labels: ["Total Female Students 45,000", "Total Male Students 45,000"],
@@ -129,14 +148,25 @@ export default function AdminAssesment() {
 		},
 	};
 
-	const quizApp = QuizComponent("AWS Lambda", "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")
-
 	return (
 		<Layout>
 				<div className="p-4 flex-1 h-full overflow-auto">
 					{ openQuiz ? 
 						<div className="flex justify-center items-center">
-							{quizApp} 
+							{/* Rendered as JSX, not called as a function — v1's
+							    QuizComponent(topic, apiKey) signature ran the
+							    component's hooks inside this one.
+
+							    ApiKeyGate is only needed until the Cloud
+							    Function is deployed. Once REACT_APP_QUIZ_ENDPOINT
+							    is set the key lives server-side and the gate
+							    disappears on its own. */}
+							<Quiz
+								topic="Assessment Practice"
+								fetcher={quizFetcher}
+								defaultParams={{ type: "mcq", amount: 5, difficulty: "intermediate" }}
+								className="w-full"
+							/>
 						</div>
 						:
 						<>
