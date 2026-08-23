@@ -9,7 +9,8 @@ import { VscFeedback } from "react-icons/vsc";
 import { GiArchiveResearch } from "react-icons/gi";
 import { FaLayerGroup } from "react-icons/fa";
 import { IoIosCreate } from "react-icons/io";
-import { MdAssignmentAdd } from "react-icons/md";
+import { MdAssignmentAdd, MdRateReview, MdOutlineRateReview, MdGroups } from "react-icons/md";
+import { FaChartBar } from "react-icons/fa";
 import { RiPassPendingFill } from "react-icons/ri";
 import LazyLoad from "react-lazyload";
   
@@ -32,6 +33,7 @@ export default function Sidebar({ page, setPage }) {
     { name: "Suggestions", icon: <VscFeedback page="suggestions" />, path: "/dashboard/suggestions" },
     { name: "Create Zoom", icon: <BiLogoZoom page="zoom" />, path: "/dashboard/zoom" },
     { name: "My Zoom-Sessions", icon: <BiLogoZoom page="zoom" />, path: "/dashboard/zoom/mymeetings" },
+    { name: "Peer Assignments", icon: <MdRateReview />, path: "/dashboard/peer-learning/teacher/assignments" },
   ];
 
   const studentRoutes = [
@@ -45,6 +47,8 @@ export default function Sidebar({ page, setPage }) {
     // { name: "Suggestions", icon: <VscFeedback page="suggestions" />, path: "/dashboard/suggestions" },
     { name: "Create Zoom", icon: <BiLogoZoom page="zoom" />, path: "/dashboard/zoom" },
     { name: "My Zoom-Sessions", icon: <BiLogoZoom page="zoom" />, path: "/dashboard/zoom/mymeetings" },
+    { name: "Peer Learning", icon: <MdGroups />, path: "/dashboard/peer-learning" },
+    { name: "My Peer Results", icon: <FaChartBar />, path: "/dashboard/peer-learning/my-results" },
     // { name: "Thank You", icon: <GiHeartBeats page="thankyou" />, path: "/dashboard/thankyou" },
   ];
   
@@ -60,6 +64,7 @@ export default function Sidebar({ page, setPage }) {
     { name: "My Zoom-Sessions", icon: <BiLogoZoom page="zoom" />, path: "/dashboard/zoom/mymeetings" },
     { name: "Assesments", icon: <Assessments page="assessments" />, path: "/dashboard/assesment" },
     { name: "Suggestions", icon: <RiPassPendingFill />, path: "/dashboard/suggestions" },
+    { name: "Peer Assignments", icon: <MdOutlineRateReview />, path: "/dashboard/peer-learning/teacher/assignments" },
 ];
 
   const routes = isAdmin

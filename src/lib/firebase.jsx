@@ -114,6 +114,11 @@ const signInWithGoogle = async () => {
 };
 
 const meetingsRef = collection(db, "meetings");
+const peerAssignmentsRef = collection(db, "peerAssignments");
+const peerSubmissionsRef = collection(db, "peerSubmissions");
+const peerReviewsRef = collection(db, "peerReviews");
+const peerFlagsRef = collection(db, "peerFlags");
+const peerActivityLogRef = collection(db, "peerActivityLog");
 
 const updateFireStoreDoc = async (collection, id, data) => {
   try {
@@ -147,6 +152,11 @@ export {
   sendPasswordReset,
   logout,
   meetingsRef,
+  peerAssignmentsRef,
+  peerSubmissionsRef,
+  peerReviewsRef,
+  peerFlagsRef,
+  peerActivityLogRef,
   storage,
   mutateFireStoreDoc,
   updateFireStoreDoc

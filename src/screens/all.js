@@ -64,7 +64,18 @@ import ViewCourse from "./Dashboard/ViewCourse.js";
 import ViewChapter from "./Dashboard/ViewChapter.js";
 import ViewDashboardCourses from "./Dashboard/Students/ViewDashboardCourses.js";
 import Analytics from "./Dashboard/Analytics.js";
-  
+
+// Peer Learning Screens
+import PeerLearningHome from "./Dashboard/PeerLearning/PeerLearningHome.js";
+import PeerAssignmentSubmit from "./Dashboard/PeerLearning/PeerAssignmentSubmit.js";
+import PeerReviewTask from "./Dashboard/PeerLearning/PeerReviewTask.js";
+import MyPeerResults from "./Dashboard/PeerLearning/MyPeerResults.js";
+import TeacherPeerAssignments from "./Dashboard/PeerLearning/TeacherPeerAssignments.js";
+import CreatePeerAssignment from "./Dashboard/PeerLearning/CreatePeerAssignment.js";
+import ManagePeerAssignment from "./Dashboard/PeerLearning/ManagePeerAssignment.js";
+import PeerAssignmentAnalytics from "./Dashboard/PeerLearning/PeerAssignmentAnalytics.js";
+// Peer Learning Screens
+
 export {
   AboutScreen,
   AcademicsScreen,
@@ -115,5 +126,13 @@ export {
   Terms,
   Privacy,
   WebRTCDemo,
-  AdminUserManagementPage
+  AdminUserManagementPage,
+  PeerLearningHome,
+  PeerAssignmentSubmit,
+  PeerReviewTask,
+  MyPeerResults,
+  TeacherPeerAssignments,
+  CreatePeerAssignment,
+  ManagePeerAssignment,
+  PeerAssignmentAnalytics
 };

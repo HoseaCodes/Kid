@@ -1,0 +1,177 @@
+rules_version = '2';
+
+// KidverCity Peer Learning rules (Phase A: assignments, submissions, activity log).
+// Phase B/C will add reviewer-side rules for peerReviews and peerFlags.
+//
+// NOTE: This file only contains the new peer-learning rule blocks. If your
+// project already has other collections defined in the Firebase console,
+// merge these blocks in - DO NOT replace the whole rules file blindly.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userDoc() {
+      // Looks up the calling user's doc by uid. Returns null if not found.
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isTeacherOrAdmin() {
+      let u = userDoc();
+      return u != null && (u.isTeacher == true || u.isAdmin == true);
+    }
+
+    function isInCohort(assignment) {
+      return assignment.cohortUserIds is list
+        && request.auth.uid in assignment.cohortUserIds;
+    }
+
+    // ---------------- peerAssignments ----------------
+    match /peerAssignments/{assignmentId} {
+      allow read: if isSignedIn() && (
+        isTeacherOrAdmin() || isInCohort(resource.data)
+      );
+
+      allow create: if isSignedIn()
+        && isTeacherOrAdmin()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.title is string
+        && request.resource.data.rubric is list
+        && request.resource.data.reviewersPerSubmission is number
+        && request.resource.data.reviewersPerSubmission >= 1
+        && request.resource.data.reviewersPerSubmission <= 4
+        && request.resource.data.cohortUserIds is list;
+
+      allow update, delete: if isSignedIn()
+        && isTeacherOrAdmin()
+        && resource.data.ownerId == request.auth.uid;
+    }
+
+    // ---------------- peerSubmissions ----------------
+    match /peerSubmissions/{submissionId} {
+      allow read: if isSignedIn() && (
+        resource.data.authorId == request.auth.uid
+        || isTeacherOrAdmin()
+      );
+
+      allow create: if isSignedIn()
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.assignmentId is string
+        && request.resource.data.fileUrl is string
+        && request.resource.data.status == "submitted";
+
+      // Author can update their own submission only while still in "submitted" state.
+      // Teachers can update anytime (to finalize grade, etc).
+      allow update: if isSignedIn() && (
+        (resource.data.authorId == request.auth.uid
+          && resource.data.status == "submitted")
+        || isTeacherOrAdmin()
+      );
+
+      allow delete: if isSignedIn() && isTeacherOrAdmin();
+    }
+
+    // ---------------- peerActivityLog ----------------
+    match /peerActivityLog/{logId} {
+      // Append-only audit trail. Any signed-in user may write a log entry
+      // about themselves; only teachers/admins can read.
+      allow read: if isSignedIn() && isTeacherOrAdmin();
+      allow create: if isSignedIn()
+        && request.resource.data.actorId == request.auth.uid
+        && request.resource.data.assignmentId is string
+        && request.resource.data.eventType is string
+        && !("text" in request.resource.data.keys())
+        && !("comment" in request.resource.data.keys());
+      allow update, delete: if false;
+    }
+
+    // ---------------- peerReviews ----------------
+    match /peerReviews/{reviewId} {
+      // Reviewers see only their own assigned reviews; teachers see all.
+      // Authors can read submitted reviews of their own work for analytics
+      // aggregates. The reviewerId field is in the JSON payload but the UI
+      // never renders it for the author (anonymity is a client-side guarantee
+      // - if you need server-enforced anonymity later, move aggregates to a
+      // Cloud Function that strips reviewerId before returning).
+      allow read: if isSignedIn() && (
+        resource.data.reviewerId == request.auth.uid
+        || (resource.data.authorId == request.auth.uid
+            && resource.data.status == "submitted")
+        || isTeacherOrAdmin()
+      );
+
+      // Creation only happens during auto-assign (run by the teacher).
+      allow create: if isSignedIn()
+        && isTeacherOrAdmin()
+        && request.resource.data.status == "pending"
+        && request.resource.data.assignmentId is string
+        && request.resource.data.submissionId is string
+        && request.resource.data.reviewerId is string
+        && request.resource.data.authorId is string
+        && request.resource.data.reviewerId != request.resource.data.authorId
+        && request.resource.data.feedbackTagIds is list
+        && request.resource.data.feedbackTagIds.size() == 0
+        && !("text" in request.resource.data.keys())
+        && !("comment" in request.resource.data.keys());
+
+      // Reviewer flips pending -> submitted with ratings + tag IDs only.
+      // Reject any free-text fields entirely (kid-safety).
+      allow update: if isSignedIn()
+        && resource.data.reviewerId == request.auth.uid
+        && resource.data.status == "pending"
+        && request.resource.data.status == "submitted"
+        && request.resource.data.reviewerId == resource.data.reviewerId
+        && request.resource.data.authorId == resource.data.authorId
+        && request.resource.data.submissionId == resource.data.submissionId
+        && request.resource.data.assignmentId == resource.data.assignmentId
+        && request.resource.data.feedbackTagIds is list
+        && request.resource.data.feedbackTagIds.size() <= 6
+        && request.resource.data.ratings is map
+        && !("text" in request.resource.data.keys())
+        && !("comment" in request.resource.data.keys());
+
+      allow delete: if isSignedIn() && isTeacherOrAdmin();
+    }
+
+    // ---------------- peerFlags ----------------
+    match /peerFlags/{flagId} {
+      // Teachers read all flags; the flagger reads their own to see status.
+      allow read: if isSignedIn() && (
+        isTeacherOrAdmin()
+        || resource.data.flaggerId == request.auth.uid
+      );
+
+      // A student can only flag a review on a submission they authored.
+      // reasonCode must be from the fixed enum. NO free-text fields.
+      allow create: if isSignedIn()
+        && request.resource.data.flaggerId == request.auth.uid
+        && get(/databases/$(database)/documents/peerSubmissions/$(request.resource.data.submissionId)).data.authorId == request.auth.uid
+        && request.resource.data.status == "open"
+        && request.resource.data.reasonCode in [
+            "unfair_rating",
+            "off_topic",
+            "incomplete_review",
+            "bullying_or_mean",
+            "other"
+        ]
+        && request.resource.data.assignmentId is string
+        && request.resource.data.reviewId is string
+        && request.resource.data.submissionId is string
+        && !("text" in request.resource.data.keys())
+        && !("comment" in request.resource.data.keys());
+
+      // Only teachers can resolve flags (set status, optional teacherNote).
+      allow update: if isSignedIn()
+        && isTeacherOrAdmin()
+        && resource.data.flaggerId == request.resource.data.flaggerId
+        && resource.data.reviewId == request.resource.data.reviewId
+        && resource.data.submissionId == request.resource.data.submissionId
+        && request.resource.data.status in ["dismissed", "upheld"];
+
+      allow delete: if isSignedIn() && isTeacherOrAdmin();
+    }
+  }
+}

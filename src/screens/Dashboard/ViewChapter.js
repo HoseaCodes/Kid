@@ -1,63 +1,19 @@
-import React, { useState, useEffect, lazy, Suspense } from "react";
+import React, { lazy, Suspense } from "react";
 import { useLocation } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import Layout from "../../components/Dashboard/Layout";
-import useGetCourseById from "../../hooks/useGetCouseById";
-import useGetCourseAttachments from "../../hooks/useGetCourseAttachments";
+import { getChapter } from "../../features/lms/getChapter";
+import { getChapters } from "../../features/lms/getChapters";
 
 const Banner = lazy(() => import("../../components/Banner"));
 const CourseLayout = lazy(() => import("../../components/Courses/CourseLayout"));
 const VideoPlayer = lazy(() => import("../../components/VideoPlayer"));
-const CourseProgressButton = lazy(() => import("../../components/Chapters/CourseProgressButton"));
-const AttachmentList = lazy(() => import('../../components/Chapters/AttachmentList'));
-
-// Mock functions and data to simulate authentication and database fetching
-const mockUserId = "user123";
-const mockChapter = {
-  id: "chapter1",
-  title: "Chapter 1",
-  description: "This is a chapter description.",
-  isFree: true,
-};
-const mockCourse = {
-  id: "course1",
-  title: "Sample Course",
-  price: 100,
-};
-const mockMuxData = { playbackId: "playback123" };
-const mockAttachments = [
-  {
-    id: "attachment1",
-    name: "Attachment 1",
-    url: "https://example.com/attachment1",
-  },
-];
-const mockNextChapter = { id: "chapter2" };
-const mockUserProgress = { isCompleted: false };
-const mockPurchase = { userId: mockUserId, courseId: mockCourse.id };
-
-const getChapter = async ({ userId, chapterId, courseId }) => {
-  // Simulate an API call
-  return {
-    chapter: mockChapter,
-    course: mockCourse,
-    muxData: mockMuxData,
-    attachments: mockAttachments,
-    nextChapter: mockNextChapter,
-    userProgress: mockUserProgress,
-    purchase: mockPurchase,
-  };
-};
-
-// const VideoPlayer = ({ title, playbackId, isLocked, completeOnEnd }) => (
-//   <div className={`video-player ${isLocked ? "locked" : ""}`}>
-//     <h3>{title}</h3>
-//     {!isLocked ? (
-//       <video src={`https://stream.mux.com/${playbackId}.m3u8`} controls />
-//     ) : (
-//       <p>Content is locked</p>
-//     )}
-//   </div>
-// );
+const CourseProgressButton = lazy(() =>
+  import("../../components/Chapters/CourseProgressButton")
+);
+const AttachmentList = lazy(() =>
+  import("../../components/Chapters/AttachmentList")
+);
 
 const CourseEnrollButton = ({ price }) => (
   <button className="enroll-button">Enroll for ${price}</button>
@@ -69,52 +25,42 @@ const Preview = ({ value }) => <div className="preview">{value}</div>;
 
 const ChapterIdPage = ({ currentUser }) => {
   const location = useLocation();
-  const url = location.pathname;
-  const regex = /\/courses\/([^/]+)\/chapters\/([^/]+)/;
-  const match = url.match(regex);
-  const courseId = match[1];
-  const chapterId = match[2];
-  const [chapterData, setChapterData] = useState({
-    id: "",
-    title: "",
-    description: "",
-    isFree: false,
-    muxData: null,
-    userProgress: null,
-  });
-  const [nextChapter, setNextChapter] = useState(null);
-  const { data: course } = useGetCourseById(courseId);
-  const { data: attachments, isLoading, error } = useGetCourseAttachments(
-    courseId
+  const match = location.pathname.match(
+    /\/courses\/([^/]+)\/chapters\/([^/]+)/
   );
-  const [chapId, setChapterId] = useState(null);
+  const courseId = match?.[1];
+  const chapterId = match?.[2];
+  const userId = currentUser?.uid;
 
-  useEffect(() => {
-    if (course) {
-      const currentIndex = course.chapters.findIndex(
-        (chapter) => chapter.id === chapterId
-      );
-      if (currentIndex !== -1) {
-        setChapterData(course.chapters[currentIndex]);
-        setNextChapter(course.chapters[currentIndex + 1] || null);
-      }
-    }
-  }, [course, chapterId, chapterData]);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["chapter", userId, courseId, chapterId],
+    queryFn: () => getChapter({ userId, courseId, chapterId }),
+    enabled: !!userId && !!courseId && !!chapterId,
+    staleTime: 60 * 1000,
+  });
 
-  console.log({ course, chapterData, nextChapter });
+  const { data: chapters = [] } = useQuery({
+    queryKey: ["chapters", courseId],
+    queryFn: () => getChapters(courseId),
+    enabled: !!courseId,
+    staleTime: 60 * 1000,
+  });
 
-  if (!chapterData) {
-    return <div>pLoading...</div>;
-  }
-  if (isLoading) return <div>Loading...</div>;
+  if (!match) return <div>Invalid chapter URL</div>;
+  if (isLoading || !data) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
-  const purchase = currentUser?.courses.find(
-    (course) => course.id === courseId
-  );
+  const { chapter, course, attachments, nextChapter, userProgress, purchase } =
+    data;
 
-  const isLocked = !chapterData.isFree && !purchase;
-  const completeOnEnd = !!purchase && !chapterData.userProgress?.isCompleted;
+  if (!chapter || !course) return <div>Chapter not found</div>;
+
+  // CourseSidebar still consumes course.chapters as an array; attach the
+  // subcollection result here so it keeps working without edits.
+  const courseWithChapters = { ...course, chapters };
+
+  const isLocked = !chapter.isFree && !purchase;
+  const completeOnEnd = !!purchase && !userProgress?.isCompleted;
 
   return (
     <Layout>
@@ -122,11 +68,11 @@ const ChapterIdPage = ({ currentUser }) => {
         <CourseLayout
           courseId={courseId}
           currentUser={currentUser}
-          course={course}
-          setChapterId={setChapterId}
+          course={courseWithChapters}
+          setChapterId={() => {}}
         >
           <div>
-            {chapterData.userProgress?.isCompleted && (
+            {userProgress?.isCompleted && (
               <Suspense fallback={<div>Loading banner...</div>}>
                 <Banner
                   variant="success"
@@ -146,11 +92,11 @@ const ChapterIdPage = ({ currentUser }) => {
               <div className="p-4">
                 <Suspense fallback={<div>Loading video player...</div>}>
                   <VideoPlayer
-                    chapter={chapterData}
-                    chapterId={chapterId}
-                    title={chapterData.title}
+                    chapter={chapter}
+                    chapterId={chapter.id}
+                    title={chapter.title}
                     courseId={courseId}
-                    course={course}
+                    course={courseWithChapters}
                     nextChapterId={nextChapter?.id}
                     playbackId={null}
                     isLocked={isLocked}
@@ -161,12 +107,14 @@ const ChapterIdPage = ({ currentUser }) => {
               <div>
                 <div className="p-4 flex flex-col md:flex-row items-center justify-between">
                   <h2 className="text-2xl font-semibold mb-2">
-                    {chapterData.title}
+                    {chapter.title}
                   </h2>
                   {purchase ? (
                     <Suspense fallback={<div>Loading progress button...</div>}>
                       <CourseProgressButton
-                        isCompleted={!!chapterData.userProgress?.isCompleted}
+                        chapterId={chapter.id}
+                        courseId={courseId}
+                        isCompleted={!!userProgress?.isCompleted}
                         nextChapterId={nextChapter?.id}
                       />
                     </Suspense>
@@ -181,7 +129,7 @@ const ChapterIdPage = ({ currentUser }) => {
                 </Suspense>
                 <div>
                   <Suspense fallback={<div>Loading preview...</div>}>
-                    <Preview value={chapterData.description} />
+                    <Preview value={chapter.description} />
                   </Suspense>
                 </div>
                 {!!attachments.length && (

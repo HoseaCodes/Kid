@@ -1,68 +1,57 @@
-import React, { useEffect, useState, lazy, Suspense } from "react";
+import React, { lazy, Suspense } from "react";
+import { useLocation } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { FaEye, FaVideo } from "react-icons/fa";
 import IconBadge from "../../components/IconBadge";
 import Banner from "../../components/Banner";
 import Layout from "../../components/Dashboard/Layout";
-import { useLocation } from "react-router-dom";
-import { mockFetchChapter } from "../../constants/mockData";
-import useGetCourseById from "../../hooks/useGetCouseById";
+import { getChapterById } from "../../features/lms/getChapterById";
 
-const ChapterActions = lazy(() => import("../../components/Form/Chapter/ChapterActions"));
-const ChapterAccessForm = lazy(() => import("../../components/Form/Chapter/ChapterAccessForm"));
-const ChapterTitleForm = lazy(() => import("../../components/Form/Chapter/ChapterTitleForm"));
-const ChapterDescriptionForm = lazy(() => import("../../components/Form/Chapter/ChapterDescriptionForm"));
-const ChapterVideoForm = lazy(() => import("../../components/Form/Chapter/ChapterVideoForm"));
-
-const mockRedirect = (url) => {
-  // Mock redirect logic
-  window.location.href = url;
-};
+const ChapterActions = lazy(() =>
+  import("../../components/Form/Chapter/ChapterActions")
+);
+const ChapterAccessForm = lazy(() =>
+  import("../../components/Form/Chapter/ChapterAccessForm")
+);
+const ChapterTitleForm = lazy(() =>
+  import("../../components/Form/Chapter/ChapterTitleForm")
+);
+const ChapterDescriptionForm = lazy(() =>
+  import("../../components/Form/Chapter/ChapterDescriptionForm")
+);
+const ChapterVideoForm = lazy(() =>
+  import("../../components/Form/Chapter/ChapterVideoForm")
+);
 
 const UpdateChapter = () => {
-  const [courseId, setCourseId] = useState(null);
-  const [chapterId, setChapterId] = useState(null);
   const location = useLocation();
-  const [chapter, setChapter] = useState(mockFetchChapter(courseId, chapterId));
-  useEffect(() => {
-    const url = location.pathname;
-    const regex = /\/course\/([^/]+)\/chapters\/([^/]+)/;
-    const match = url.match(regex);
-    
-    if (match) {
-      const courseId = match[1];
-      const chapterId = match[2];
-      setCourseId(courseId);
-      setChapterId(chapterId);
-      console.log(`Course ID: ${courseId}`);
-      console.log(`Chapter ID: ${chapterId}`);
-    } else {
-      console.log("No match found");
-    }
-  }, [courseId, chapterId]);
-  const { data: course, isLoading, error } = useGetCourseById(courseId);
+  const match = location.pathname.match(
+    /\/course\/([^/]+)\/chapters\/([^/]+)/
+  );
+  const courseId = match?.[1];
+  const chapterId = match?.[2];
 
-  useEffect(() => {
-    const fetchChapter = async () => {
-      if (!course) return;
-      const data = course.chapters.find((chapter) => chapter.id === chapterId);
-      setChapter(data);
-    };
-    fetchChapter();
-  }, [course]);
+  const {
+    data: chapter,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["chapterAdmin", courseId, chapterId],
+    queryFn: () => getChapterById(courseId, chapterId),
+    enabled: !!courseId && !!chapterId,
+    staleTime: 30 * 1000,
+  });
 
-  if (!courseId || !chapterId) return <div>Loading...</div>;
-
-  if (!chapter) {
-    return <div>Loading...</div>;
-  }
+  if (!match) return <div>Invalid chapter URL</div>;
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+  if (!chapter) return <div>Chapter not found</div>;
 
   const requiredFields = [chapter.title, chapter.description, chapter.videoUrl];
-
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
-
   const completionText = `(${completedFields}/${totalFields})`;
   const isComplete = requiredFields.every(Boolean);
 
@@ -79,9 +68,9 @@ const UpdateChapter = () => {
           <div className="flex items-center justify-between">
             <div className="w-full">
               <button
-                onClick={() =>
-                  mockRedirect(`/dashboard/admin/course/${courseId}`)
-                }
+                onClick={() => {
+                  window.location.href = `/dashboard/admin/courses/edit/${courseId}`;
+                }}
                 className="flex items-center text-sm hover:opacity-75 transition-none mb-6"
               >
                 <FaArrowLeftLong className="h-4 w-4 mr-2" />

@@ -1,6 +1,7 @@
 import { mutateFireStoreDoc, updateFireStoreDoc } from "../lib/firebase";
 import { v4 as uuidv4 } from "uuid";
 import { serverTimestamp } from "firebase/firestore";
+import { grantPurchase } from "../features/lms/grantPurchase";
 
 const createCourse = async (props) => {
   const { currentUser, newCourse, history, user } = props;
@@ -379,6 +380,17 @@ const assignStudentToCourse = async ({
       await mutateFireStoreDoc("courses", course.id, {
         students: updatedStudents,
       });
+
+      // Mirror into the new purchases collection so LMS read helpers see this
+      // enrollment. Keyed by auth uid; idempotent if already granted.
+      if (student.uid) {
+        await grantPurchase({ userId: student.uid, courseId: course.id });
+      } else {
+        console.warn(
+          "[ASSIGN_STUDENT] student.uid missing; purchases doc not written for",
+          student.id
+        );
+      }
 
       setIsAssigningStudent(false);
       setAssignedCourse({});

@@ -32,8 +32,8 @@ This guide covers manual testing for all user roles and major endpoints/features
 ---
 
 ## 4. Instructor Role
-- [ ] **Login**: Instructor can log in successfully.
-- [ ] **Dashboard**: Instructor dashboard loads with their courses and stats.
+- [x] **Login**: Instructor can log in successfully.
+- [x] **Dashboard**: Instructor dashboard loads with their courses and stats.
 - [ ] **Create Course**: Can create a new course (fill all required fields, upload images, add content).
 - [ ] **Edit Course**: Can edit existing courses.
 - [ ] **Delete Course**: Can delete their own courses.

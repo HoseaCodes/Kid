@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ConfirmModal } from "../../Modal/Confirm";
 import Button from "./Button";
-import { mutateFireStoreDoc } from "../../../lib/firebase";
-import useGetCourseById from "../../../hooks/useGetCouseById";
+import { setChapter } from "../../../features/lms/setChapter";
+import { deleteChapter } from "../../../features/lms/deleteChapter";
 
-// Placeholder for the Trash icon
 const Trash = ({ className }) => (
   <svg
     className={className}
@@ -23,76 +24,46 @@ const Trash = ({ className }) => (
 );
 
 const ChapterActions = ({ disabled, courseId, chapterId, isPublished }) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { data: course } = useGetCourseById(courseId);
-  const onClick = async () => {
-    try {
-      setIsLoading(true);
-      const chapters = course.chapters || [];
-      const chapterIndex = chapters.findIndex(
-        (chapter) => chapter.id === chapterId
-      );
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-      if (chapterIndex !== -1) {
-        chapters[chapterIndex].isPublished = !isPublished;
+  const togglePublishMutation = useMutation({
+    mutationFn: () =>
+      setChapter({
+        courseId,
+        chapterId,
+        updates: { isPublished: !isPublished },
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["chapterAdmin", courseId, chapterId],
+      });
+      queryClient.invalidateQueries({ queryKey: ["chapters", courseId] });
+    },
+  });
 
-        await mutateFireStoreDoc("courses", courseId, { chapters });
-      }
-      if (isPublished) {
-        alert("Chapter Unpublished");
-      } else {
-        alert("Chapter Published");
-      }
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteChapter({ courseId, chapterId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chapters", courseId] });
+      navigate(`/dashboard/courses/${courseId}`);
+    },
+  });
 
-      window.location.reload();
-    } catch (error) {
-      console.log({ error })
-      alert("Something went wrong");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const onDelete = async () => {
-    try {
-      setIsLoading(true);
-      const chapters = course.chapters || [];
-      const chapterIndex = chapters.findIndex(
-        (chapter) => chapter.id === chapterId
-      );
-      if (chapterIndex !== -1) {
-        const removeItemByIndex = (index) => {
-          const newItems = [...chapters];
-          newItems.splice(index, 1);
-          return newItems;
-        };
-        const newChapters = removeItemByIndex(chapterIndex)
-
-        await mutateFireStoreDoc("courses", courseId, {
-          chapters: newChapters,
-        });
-      }
-      alert("Chapter deleted successfully");
-      window.location.reload();
-      window.location.href = `/dashboard/courses/${courseId}`;
-    } catch {
-      alert("Something went wrong");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const isLoading =
+    togglePublishMutation.isPending || deleteMutation.isPending;
 
   return (
     <div className="flex items-center gap-x-2">
       <Button
-        onClick={onClick}
+        onClick={() => togglePublishMutation.mutate()}
         disabled={disabled || isLoading}
         variant="outline"
         size="sm"
       >
         {isPublished ? "Unpublish" : "Publish"}
       </Button>
-      <ConfirmModal onConfirm={onDelete}>
+      <ConfirmModal onConfirm={() => deleteMutation.mutate()}>
         <Button size="sm" disabled={isLoading} variant="destructive">
           <Trash className="h-4 w-4" />
         </Button>

@@ -171,6 +171,17 @@ function App() {
           <Route exact path="/admin/user/:userid/pendingcourse/:courseid" element={<Screens.PendingCourse {...states} user={user} />} />
           {/* Dashboard Admin Routes */}
 
+          {/* Peer Learning Routes */}
+          <Route exact path="/dashboard/peer-learning" element={<Screens.PeerLearningHome {...states} user={user} />} />
+          <Route exact path="/dashboard/peer-learning/assignments/:id/submit" element={<Screens.PeerAssignmentSubmit {...states} user={user} />} />
+          <Route exact path="/dashboard/peer-learning/reviews/:reviewId" element={<Screens.PeerReviewTask {...states} user={user} />} />
+          <Route exact path="/dashboard/peer-learning/teacher/assignments" element={<Screens.TeacherPeerAssignments {...states} user={user} />} />
+          <Route exact path="/dashboard/peer-learning/teacher/assignments/new" element={<Screens.CreatePeerAssignment {...states} user={user} />} />
+          <Route exact path="/dashboard/peer-learning/teacher/assignments/:id/manage" element={<Screens.ManagePeerAssignment {...states} user={user} />} />
+          <Route exact path="/dashboard/peer-learning/teacher/assignments/:id/analytics" element={<Screens.PeerAssignmentAnalytics {...states} user={user} />} />
+          <Route exact path="/dashboard/peer-learning/my-results" element={<Screens.MyPeerResults {...states} user={user} />} />
+          {/* Peer Learning Routes */}
+
           {/* 404 Route */}
           <Route path="*" element={<Screens.NotFound />} />
           {/* 404 Route */}

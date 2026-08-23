@@ -1,39 +1,34 @@
 import React, { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Checkbox } from "../../Checkbox";
 import Button from "./Button";
-import { mutateFireStoreDoc } from "../../../lib/firebase";
 import { cn } from "../../../utils/helperfunctions";
-import useGetCourseById from "../../../hooks/useGetCouseById";
+import { setChapter } from "../../../features/lms/setChapter";
 
 const ChapterAccessForm = ({ initialData, courseId, chapterId }) => {
+  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [isFree, setIsFree] = useState(initialData.isFree || false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { data: course, isLoading, error } = useGetCourseById(courseId);
 
-  const toggleEdit = () => setIsEditing(!isEditing);
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (updates) => setChapter({ courseId, chapterId, updates }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["chapterAdmin", courseId, chapterId],
+      });
+    },
+  });
+
+  const toggleEdit = () => setIsEditing((v) => !v);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setIsSubmitting(true);
     try {
-        const chapters = course.chapters || [];
-        const chapterIndex = chapters.findIndex(
-          (chapter) => chapter.id === chapterId
-        );
-
-        if (chapterIndex !== -1) {
-          chapters[chapterIndex].isFree = isFree;
-
-          await mutateFireStoreDoc("courses", courseId, { chapters });
-        }
-      alert("Chapter updated");
+      await mutateAsync({ isFree });
       toggleEdit();
-      window.location.reload(); 
-    } catch {
+    } catch (err) {
+      console.error("[CHAPTER_ACCESS_SAVE]", err);
       alert("Something went wrong");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -75,7 +70,7 @@ const ChapterAccessForm = ({ initialData, courseId, chapterId }) => {
             </div>
           </div>
           <div className="flex items-center gap-x-2">
-            <Button disabled={isSubmitting} type="submit">
+            <Button disabled={isPending} type="submit">
               Save
             </Button>
           </div>

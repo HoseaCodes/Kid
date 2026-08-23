@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { mutateFireStoreDoc } from "../../lib/firebase";
-import useGetCourseById from "../../hooks/useGetCouseById";
+import { setChapter } from "../../features/lms/setChapter";
 
 const CloudinaryScriptContext = createContext();
 
@@ -15,7 +15,6 @@ function CloudinaryUploadWidget({
   toggleEdit,
 }) {
   const [loaded, setLoaded] = useState(false);
-  const { data: course, isLoading, error } = useGetCourseById(courseId);
 
   useEffect(() => {
     if (!loaded) {
@@ -42,20 +41,11 @@ function CloudinaryUploadWidget({
             console.log("Done! Here is the image info: ", result.info);
             setPublicId(result.info.public_id);
             if (type === "video") {
-              console.log("video");
-              const chapters = course.chapters || [];
-              const chapterIndex = chapters.findIndex(
-                (chapter) => chapter.id === chapterId
-              );
-              console.log({ chapterIndex });
-              console.log({ chapter: chapters[chapterIndex] });
-              console.log(result.info.url);
-
-              if (chapterIndex !== -1) {
-                chapters[chapterIndex].videoUrl = result.info.url;
-
-                await mutateFireStoreDoc("courses", courseId, { chapters });
-              }
+              await setChapter({
+                courseId,
+                chapterId,
+                updates: { videoUrl: result.info.url },
+              });
               setVideoUrl(result.info.url);
             } else if (type === "image") {
               await mutateFireStoreDoc("courses", courseId, {

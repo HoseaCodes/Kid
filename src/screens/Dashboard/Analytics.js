@@ -1,6 +1,8 @@
 import React, { Suspense, lazy, useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Layout from "../../components/Dashboard/Layout";
 import * as Components from "../../components/all";
+import { getAnalytics } from "../../features/lms/getAnalytics";
 
 const DataCard = lazy(() => import("../../components/DataCard"));
 const Chart = lazy(() => import("../../components/Chart"));
@@ -9,6 +11,16 @@ const Analytics = (props) => {
   const { currentUser } = props;
   const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState("12months");
+
+  // Real revenue/sales totals from the new purchases collection.
+  // No teacherId -> admin-wide aggregate across all courses.
+  const { data: analytics = { totalRevenue: 0, totalSales: 0, data: [] } } =
+    useQuery({
+      queryKey: ["analytics", "admin"],
+      queryFn: () => getAnalytics(),
+      enabled: !!currentUser?.isAdmin,
+      staleTime: 60 * 1000,
+    });
 
   // Mock data - replace with actual API calls
   const [analyticsData, setAnalyticsData] = useState({
@@ -132,18 +144,18 @@ const Analytics = (props) => {
                 <div className="h-8 bg-gray-200 rounded"></div>
               </div>
             }>
-              <DataCard 
-                label="Total Revenue" 
-                value={analyticsData.totalRevenue} 
+              <DataCard
+                label="Total Revenue"
+                value={analytics.totalRevenue}
                 shouldFormat
-                growth={revenueGrowth}
+                growth={null}
                 icon="💰"
                 trend="up"
               />
-              <DataCard 
-                label="Total Sales" 
-                value={analyticsData.totalSales} 
-                growth={salesGrowth}
+              <DataCard
+                label="Total Sales"
+                value={analytics.totalSales}
+                growth={null}
                 icon="📊"
                 trend="up"
               />
