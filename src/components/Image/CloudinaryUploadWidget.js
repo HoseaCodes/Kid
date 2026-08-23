@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from "react";
-import { db } from "../../lib/firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { mutateFireStoreDoc } from "../../lib/firebase";
+import { setChapter } from "../../features/lms/setChapter";
 
 const CloudinaryScriptContext = createContext();
 
@@ -40,28 +40,15 @@ function CloudinaryUploadWidget({
           if (!error && result && result.event === "success") {
             console.log("Done! Here is the image info: ", result.info);
             setPublicId(result.info.public_id);
-            const courseDoc = doc(db, "courses", courseId);
             if (type === "video") {
-              console.log("video");
-              const courseRef = doc(db, "courses", courseId);
-              const courseDoc = await getDoc(courseRef);
-              const courseData = courseDoc.data();
-              const chapters = courseData.chapters || [];
-              const chapterIndex = chapters.findIndex(
-                (chapter) => chapter.id === chapterId
-              );
-              console.log({ chapterIndex });
-              console.log({ chapter: chapters[chapterIndex] });
-              console.log(result.info.url);
-
-              if (chapterIndex !== -1) {
-                chapters[chapterIndex].videoUrl = result.info.url;
-
-                await updateDoc(courseRef, { chapters });
-              }
+              await setChapter({
+                courseId,
+                chapterId,
+                updates: { videoUrl: result.info.url },
+              });
               setVideoUrl(result.info.url);
             } else if (type === "image") {
-              await updateDoc(courseDoc, {
+              await mutateFireStoreDoc("courses", courseId, {
                 imageUrl: result.info.url,
               });
               setImageUrl(result.info.url);

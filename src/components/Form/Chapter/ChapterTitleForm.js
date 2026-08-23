@@ -1,9 +1,8 @@
 import React, { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "./Button";
-import { db } from "../../../lib/firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { setChapter } from "../../../features/lms/setChapter";
 
-// Input component
 const Input = ({ disabled, placeholder, value, onChange }) => (
   <input
     type="text"
@@ -11,63 +10,41 @@ const Input = ({ disabled, placeholder, value, onChange }) => (
     placeholder={placeholder}
     value={value}
     onChange={onChange}
-    className="input-class" // Add your input styles here
+    className="input-class"
   />
 );
 
-// Simple form validation function
-const validate = (values) => {
-  const errors = {};
-  if (!values.title) {
-    errors.title = "Title is required";
-  }
-  return errors;
-};
-
 const ChapterTitleForm = ({ initialData, courseId, chapterId }) => {
+  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
-  const [formValues, setFormValues] = useState(initialData);
+  const [inputValue, setInputValue] = useState(initialData.title || "");
   const [formErrors, setFormErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [inputValue, setInputValue] = useState(initialData.title);
 
-  const toggleEdit = () => setIsEditing(!isEditing);
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (updates) => setChapter({ courseId, chapterId, updates }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["chapterAdmin", courseId, chapterId],
+      });
+      queryClient.invalidateQueries({ queryKey: ["chapters", courseId] });
+    },
+  });
 
-  const handleInputChange = (event) => {
-    const value = event.target.value;
-    setInputValue(value);
-    setFormValues({ ...formValues, title: value });
-  };
+  const toggleEdit = () => setIsEditing((v) => !v);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const errors = validate(formValues);
-    if (Object.keys(errors).length === 0) {
-      try {
-        setIsSubmitting(true);
-        const courseRef = doc(db, "courses", courseId);
-        const courseDoc = await getDoc(courseRef);
-        const courseData = courseDoc.data();
-        const chapters = courseData.chapters || [];
-        const chapterIndex = chapters.findIndex(
-          (chapter) => chapter.id === chapterId
-        );
-
-        if (chapterIndex !== -1) {
-          chapters[chapterIndex].title = inputValue;
-
-          await updateDoc(courseRef, { chapters });
-        }
-        alert("Chapter updated successfully");
-        toggleEdit();
-        window.location.reload();
-      } catch {
-        alert("Something went wrong");
-      } finally {
-        setIsSubmitting(false);
-      }
-    } else {
-      setFormErrors(errors);
+    if (!inputValue) {
+      setFormErrors({ title: "Title is required" });
+      return;
+    }
+    try {
+      await mutateAsync({ title: inputValue });
+      setFormErrors({});
+      toggleEdit();
+    } catch (err) {
+      console.error("[CHAPTER_TITLE_SAVE]", err);
+      alert("Something went wrong");
     }
   };
 
@@ -91,18 +68,17 @@ const ChapterTitleForm = ({ initialData, courseId, chapterId }) => {
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div>
             <Input
-              disabled={isSubmitting}
+              disabled={isPending}
               placeholder="e.g 'Introduction to the course'"
               value={inputValue}
-              onChange={handleInputChange}
-              name="title"
+              onChange={(e) => setInputValue(e.target.value)}
             />
             {formErrors.title && (
               <p className="form-error">{formErrors.title}</p>
             )}
           </div>
           <div className="flex items-center gap-x-2">
-            <Button disabled={isSubmitting} type="submit">
+            <Button disabled={isPending} type="submit">
               Save
             </Button>
           </div>

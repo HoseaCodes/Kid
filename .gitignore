@@ -22,3 +22,7 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Locally packed ai-quiz build, installed via `npm i ./vendor/*.tgz`.
+# Regenerate rather than commit; remove once the package is published.
+vendor/

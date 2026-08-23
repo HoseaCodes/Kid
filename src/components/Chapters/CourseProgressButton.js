@@ -1,10 +1,10 @@
-import Button from "../Button";
-import { useConfettiStore } from "../../hooks/useConfettiStore";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-// import toast from "react-hot-toast";
-import { db } from "../../lib/firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../../lib/firebase";
+import { useConfettiStore } from "../../hooks/useConfettiStore";
+import { setChapterProgress } from "../../features/lms/setChapterProgress";
 
 const CourseProgressButton = ({
   chapterId,
@@ -12,67 +12,56 @@ const CourseProgressButton = ({
   nextChapterId,
   isCompleted,
 }) => {
-  const history = useNavigate();
+  const navigate = useNavigate();
   const confetti = useConfettiStore();
-  const [isLoading, setIsLoading] = React.useState(false);
-//   const Icon = isCompleted ? XCircle : CheckCircle;
-  const onClick = async () => {
-    alert("clicked");
-    try {
-      setIsLoading(true);
-       const courseRef = doc(db, "courses", courseId);
-       const courseDoc = await getDoc(courseRef);
-       const courseData = courseDoc.data();
-       const chapters = courseData.chapters || [];
-       const chapterIndex = chapters.findIndex(
-         (chapter) => chapter.id === chapterId
-       );
+  const queryClient = useQueryClient();
+  const [user] = useAuthState(auth);
+  const userId = user?.uid;
 
-       if (chapterIndex !== -1) {
-         chapters[chapterIndex].isCompleted = {
-           isCompleted: !chapters[chapterIndex].isCompleted,
-         };
-
-         await updateDoc(courseRef, { chapters });
-         isCompleted = !chapters[chapterIndex].isCompleted;
-       }
+  const { mutate, isPending } = useMutation({
+    mutationFn: () =>
+      setChapterProgress({
+        userId,
+        courseId,
+        chapterId,
+        isCompleted: !isCompleted,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["chapter", userId, courseId, chapterId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["courseProgress", userId, courseId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["completedChapterIds", userId, courseId],
+      });
 
       if (!isCompleted && !nextChapterId) {
-        // confetti.onOpen();
+        confetti.onOpen();
       }
-
       if (!isCompleted && nextChapterId) {
-        history(`/courses/${courseId}/chapters/${nextChapterId}`);
+        navigate(`/dashboard/courses/${courseId}/chapters/${nextChapterId}`);
       }
+    },
+    onError: (err) => {
+      console.error("[MARK_CHAPTER_PROGRESS]", err);
+    },
+  });
 
-    //   toast.success("Progress updated");
-      window.location.reload();
-    } catch (error) {
-      console.error("Error updating progress: ", error);
-    //   toast.error("Something went wrong");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const disabled = isPending || !userId || !courseId || !chapterId;
+
   return (
-    <span onClick={onClick}>
+    <span onClick={() => !disabled && mutate()}>
       {isCompleted ? <span>⭕️</span> : <span>✅</span>}
       &nbsp;
-      <button disabled={isLoading} className={isCompleted ? "outline" : "success"}>
+      <button
+        disabled={disabled}
+        className={isCompleted ? "outline" : "success"}
+      >
         {isCompleted ? "Not completed" : "Mark as complete"}
-        {/* <Icon className="h-4 w-4 ml-2" /> */}
       </button>
     </span>
-    // <Button
-    //   type="button"
-    //   variant={isCompleted ? "outline" : "success"}
-    //   className="w-full md:w-auto"
-    //   onClick={onClick}
-    //   disabled={isLoading}
-    // >
-    //   {isCompleted ? "Not completed" : "Mark as complete"}
-    //   <Icon className="h-4 w-4 ml-2" />
-    // </Button>
   );
 };
 

@@ -1,7 +1,8 @@
 import React from "react";
-import imgPlaceholder from "./image-placeholder.png";
-import { db } from "../../lib/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { updateFireStoreDoc } from "../../lib/firebase";
+import LazyLoad from "react-lazyload";
+
+const imgPlaceholder = "https://d10grw5om5v513.cloudfront.net/assets/images/image-placeholder.png";
 
 const EditCourse = (props) => {
 	const {
@@ -22,8 +23,7 @@ const EditCourse = (props) => {
 		setUpdatedCourse(async () => {
 			if (key !== "instructor") {
 				course[key] = e.target.value;
-				await setDoc(doc(db, "users", user.uid), 
-					{ course: [...course] }, { merge: true })
+				await updateFireStoreDoc("users", user.uid, { course: [...course] });
 				if (e.target.value.length) {
 					return {
 						...updatedCourse,
@@ -72,7 +72,9 @@ const EditCourse = (props) => {
 								/>
 							</div>
 							<div className="banner-img">
-								<img src={imgPlaceholder} alt="img-placeholder" />
+								<LazyLoad height={100} offset={100} once>
+								  <img loading="lazy" src={imgPlaceholder} alt="img-placeholder" />
+								</LazyLoad>
 							</div>
 							<div className="author">
 								<div>
@@ -91,7 +93,7 @@ const EditCourse = (props) => {
 										<strong>INSTRUCTOR</strong>
 										<input
 											type="text"
-											placeholder={course.instructor.username}
+											   placeholder={course.instructor && course.instructor.username ? course.instructor.username : 'Unknown'}
 											onChange={(e) => {
 												handleUpdate({ e, key: "instructor" });
 											}}
@@ -100,7 +102,7 @@ const EditCourse = (props) => {
 								) : (
 									<div className="ends">
 										<strong>INSTRUCTOR</strong>
-										{course.instructor.username}
+										 {course.instructor && course.instructor.username ? course.instructor.username : 'Unknown'}
 									</div>
 								)} */}
 							</div>

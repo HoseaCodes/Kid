@@ -19,14 +19,13 @@ import SignUpScreen from "./Auth/SignUpScreen";
 // Auth Screens
 
 
-import AdminDashboard from "./Admin/AdminDashboard";
-import AdminProfile from "./Profile/AdminProfile";
 import AdminAssesment from "./Admin/AdminAssesment";
 import AdminSuggestions from "./Admin/AdminSuggestions";
 import AdminZoom from "./Admin/AdminZoom";
 import AdminRewards from "./Admin/AdminRewards";
 import AdminPurchase from "./Admin/AdminPurchase";
 import AdminThankyou from "./Admin/AdminThankyou";
+import AdminUserManagementPage from "./Dashboard/Admin/UserManagement";
 
 // Zoom Screens
 import CreateMeeting from "./Zoom/CreateMeeting";
@@ -35,33 +34,29 @@ import VideoConference from "./Zoom/VideoConference";
 import MyMeetings from "./Zoom/MyMeetings";
 import JoinMeeting from "./Zoom/JoinMeeting";
 import Meeting from "./Zoom/Meeting";
-import Dashboard from "./Zoom/Dashboard";
+import ZoomDashboard from "./Zoom/Dashboard";
 import WebRTCDemo from "./Zoom/WebRTCDemo2.js";
 // Zoom Screens
 
 import UpdateCourse from "./Dashboard/UpdateCourse";
 
+import Dashboard from "./Dashboard/index.js";
+import NewCourse from "./Dashboard/Admin/NewCourse.js";
 import TeacherCourses from "./Dashboard/Teachers/TeacherCourses";
 import TeachersCourses from "./Dashboard/Teachers/TeachersCourses.js";
 import ViewStudents from "./Dashboard/Teachers/ViewStudents.js";
-import NewCourse from "./Dashboard/Admin/NewCourse.js";
 import Products from "./Dashboard/Products";
+import Profile from "./Dashboard/Profile.js";
 import Cart from "./Dashboard/Students/Cart.js";
 
 // Invoice Screens
 import Invoice from "./Invoice/Invoice.js";
-import Invoice2 from "./Invoice/Invoice copy.js";
 import NewInvoice from "./Invoice/NewInvoice.js";
-import NewInvoice2 from "./Invoice/NewInvoice copy 2.js";
 import Transaction from "./Invoice/Transaction.js";
 import Transactions from "./Invoice/Transactions.js";
-import UnifiedInvoiceTable from "./Invoice/UnifiedInvoiceTable.js";
 // Invoice Screens
 
-import AssignCourse from "./Dashboard/Admin/AssignCourse.js";
-import DeleteCourse from "./Dashboard/Admin/DeleteCourse.js";
 import PendingCourse from "./Dashboard/Admin/PendingCourse.js";
-import PendingCourses from "./Dashboard/Admin/PendingCourses.js";
 import ViewStudent from "./Dashboard/ViewStudent";
 import UpdateChapter from "./Dashboard/UpdateChapter";
 import Search from "./Dashboard/Search.js";	 
@@ -69,8 +64,18 @@ import ViewCourse from "./Dashboard/ViewCourse.js";
 import ViewChapter from "./Dashboard/ViewChapter.js";
 import ViewDashboardCourses from "./Dashboard/Students/ViewDashboardCourses.js";
 import Analytics from "./Dashboard/Analytics.js";
-import AssignStudentCourse from "./Dashboard/Admin/AssignStudentCourse.js";
-  
+
+// Peer Learning Screens
+import PeerLearningHome from "./Dashboard/PeerLearning/PeerLearningHome.js";
+import PeerAssignmentSubmit from "./Dashboard/PeerLearning/PeerAssignmentSubmit.js";
+import PeerReviewTask from "./Dashboard/PeerLearning/PeerReviewTask.js";
+import MyPeerResults from "./Dashboard/PeerLearning/MyPeerResults.js";
+import TeacherPeerAssignments from "./Dashboard/PeerLearning/TeacherPeerAssignments.js";
+import CreatePeerAssignment from "./Dashboard/PeerLearning/CreatePeerAssignment.js";
+import ManagePeerAssignment from "./Dashboard/PeerLearning/ManagePeerAssignment.js";
+import PeerAssignmentAnalytics from "./Dashboard/PeerLearning/PeerAssignmentAnalytics.js";
+// Peer Learning Screens
+
 export {
   AboutScreen,
   AcademicsScreen,
@@ -84,8 +89,8 @@ export {
   LoginScreen,
   ResetPasswordScreen,
   SignUpScreen,
-  AdminDashboard,
-  AdminProfile,
+  Dashboard,
+  Profile,
   AdminAssesment,
   AdminSuggestions,
   AdminZoom,
@@ -98,7 +103,7 @@ export {
   MyMeetings,
   JoinMeeting,
   Meeting,
-  Dashboard,
+  ZoomDashboard,
   TeacherCourses,
   TeachersCourses,
   Transaction,
@@ -108,11 +113,8 @@ export {
   Products,
   Cart,
   NewCourse,
-  AssignCourse,
   PendingCourse,
-  PendingCourses,
   NewInvoice,
-  NewInvoice2,
   ViewStudent,
   ViewStudents,
   UpdateChapter,
@@ -121,11 +123,16 @@ export {
   ViewChapter,
   ViewDashboardCourses,
   Analytics,
-  UnifiedInvoiceTable,
-  DeleteCourse,
-  AssignStudentCourse,
   Terms,
   Privacy,
-  Invoice2,
-  WebRTCDemo
+  WebRTCDemo,
+  AdminUserManagementPage,
+  PeerLearningHome,
+  PeerAssignmentSubmit,
+  PeerReviewTask,
+  MyPeerResults,
+  TeacherPeerAssignments,
+  CreatePeerAssignment,
+  ManagePeerAssignment,
+  PeerAssignmentAnalytics
 };

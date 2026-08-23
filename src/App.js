@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { analytics } from "./lib/analytics";
+import { logEvent } from "firebase/analytics";
 import "./App.css";
 import * as Screens from "./screens/all";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -15,6 +17,12 @@ const servers = {
 };
 
 function App() {
+    useEffect(() => {
+      // Log initial app load event
+      if (analytics) {
+        logEvent(analytics, "app_loaded");
+      }
+    }, []);
   const [isLoggedin, setIsLoggedin] = useState(false);
   const { currentUser, user, loading } = useUserData();
   const [pc, setPc] = useState(new RTCPeerConnection(servers));
@@ -121,10 +129,10 @@ function App() {
 
           {/* Dashboard General Routes */}
           {/* <Route path="/dashboard" element={<PrivateRoute type="login" element={<Screens.AdminDashboard {...states} user={user} />} user={user} currentUser={currentUser} />} /> */}
-          <Route exact path="/dashboard" element={<Screens.AdminDashboard {...states} user={user} />} />
+          <Route exact path="/dashboard" element={<Screens.Dashboard {...states} user={user} />} />
           <Route exact path="/dashboard/assesment" element={<Screens.AdminAssesment />} />
           <Route exact path="/dashboard/products" element={<Screens.Products {...states} user={user} />}/>
-          <Route exact path="/dashboard/profile" element={<Screens.AdminProfile user={user} />} />
+          <Route exact path="/dashboard/profile" element={<Screens.Profile user={user} />} />
           <Route exact path="/dashboard/purchase" element={<Screens.AdminPurchase />} />
           <Route exact path="/dashboard/rewards" element={<Screens.AdminRewards />} />
           <Route exact path="/dashboard/suggestions" element={<Screens.AdminSuggestions />} />
@@ -145,30 +153,34 @@ function App() {
           <Route exact path="/dashboard/course/:id/students/:studentusername" element={<Screens.ViewStudent {...states} user={user} />} />
           {/* Dashbaord Student Routes */}
 
-          {/* Invoice Routes */}
-          <Route exact path="/dashboard/admin/invoice/new" element={<Screens.NewInvoice {...states} user={user} />} />
-          <Route exact path="/dashboard/admin/invoices/all" element={<Screens.UnifiedInvoiceTable {...states} user={user} />} />
+
+          {/* Student Transaction Routes */}
           <Route exact path="/dashboard/transaction/:id" element={<Screens.Transaction {...states} user={user} />} />
           <Route exact path="/dashboard/transactions" element={<Screens.Transactions {...states} user={user} />} />
           <Route exact path="/dashboard/transaction/:id/invoice" element={<Screens.Invoice {...states} user={user} />} />
-          <Route exact path="/dashboard/transaction/:id/invoice2" element={<Screens.Invoice2 {...states} user={user} />} />
-          {/* Invoice Routes */}
 
           {/* Dashboard Admin Routes */}
-          {/* <PrivateRoute type={"admin"} user={user} currentUser={currentUser} exact path="/dashboard/admin/course/assign" element={<Screens.AssignCourse {...states} user={user} />} /> */}
           <Route exact path="/dashboard/admin/analytics" element={<Screens.Analytics {...states} user={user} />} />
-          <Route exact path="/dashboard/admin/course/assign" element={<Screens.AssignCourse {...states} user={user} />} />
-          <Route exact path="/dashboard/admin/student/course/assign" element={<Screens.AssignStudentCourse {...states} user={user} />} />
-          <Route exact path="/dashboard/admin/course/:id" element={<Screens.UpdateCourse {...states} user={user} />} />
+          <Route exact path="/dashboard/admin/courses/edit/:id" element={<Screens.UpdateCourse {...states} user={user} />} />
+          <Route exact path="/dashboard/admin/management/courses" element={<Screens.NewCourse {...states} user={user} />} />
+          <Route exact path="/dashboard/admin/management/invoices" element={<Screens.NewInvoice {...states} user={user} />} />
+          <Route exact path="/dashboard/admin/management/users" element={<Screens.AdminUserManagementPage {...states} user={user} />} />
           {/* issue rendering */}
           <Route exact path="/dashboard/admin/course/:id/chapters/:id" element={<Screens.UpdateChapter {...states} user={user} />} />
           {/* issue rendering */}
-          <Route exact path="/dashboard/admin/course/new" element={<Screens.NewCourse {...states} user={user} />} />
-          <Route exact path="/dashboard/admin/courses/delete" element={<Screens.DeleteCourse {...states} user={user} />} />
-          <Route exact path="/dashboard/admin/courses/pending" element={<Screens.PendingCourses {...states} user={user} />} />
-          <Route exact path="/dashboard/admin/invoice/new2" element={<Screens.NewInvoice2 {...states} user={user} />} />
           <Route exact path="/admin/user/:userid/pendingcourse/:courseid" element={<Screens.PendingCourse {...states} user={user} />} />
           {/* Dashboard Admin Routes */}
+
+          {/* Peer Learning Routes */}
+          <Route exact path="/dashboard/peer-learning" element={<Screens.PeerLearningHome {...states} user={user} />} />
+          <Route exact path="/dashboard/peer-learning/assignments/:id/submit" element={<Screens.PeerAssignmentSubmit {...states} user={user} />} />
+          <Route exact path="/dashboard/peer-learning/reviews/:reviewId" element={<Screens.PeerReviewTask {...states} user={user} />} />
+          <Route exact path="/dashboard/peer-learning/teacher/assignments" element={<Screens.TeacherPeerAssignments {...states} user={user} />} />
+          <Route exact path="/dashboard/peer-learning/teacher/assignments/new" element={<Screens.CreatePeerAssignment {...states} user={user} />} />
+          <Route exact path="/dashboard/peer-learning/teacher/assignments/:id/manage" element={<Screens.ManagePeerAssignment {...states} user={user} />} />
+          <Route exact path="/dashboard/peer-learning/teacher/assignments/:id/analytics" element={<Screens.PeerAssignmentAnalytics {...states} user={user} />} />
+          <Route exact path="/dashboard/peer-learning/my-results" element={<Screens.MyPeerResults {...states} user={user} />} />
+          {/* Peer Learning Routes */}
 
           {/* 404 Route */}
           <Route path="*" element={<Screens.NotFound />} />
@@ -185,7 +197,7 @@ function App() {
 					<Route path="/dashboard/zoom/meetings" element={<Screens.Meeting  {...states} user={user} />} />
 					<Route path="/dashboard/zoom/mymeetings" element={<Screens.MyMeetings  {...states} user={user} />} />
           {/* Duplicates */}
-			    <Route path="/dashboard/zoom" element={<Screens.Dashboard  {...states} user={user}/>} />
+			    <Route path="/dashboard/zoom" element={<Screens.ZoomDashboard  {...states} user={user}/>} />
         </Routes>
       </BrowserRouter>
     </div>

@@ -1,39 +1,127 @@
-import React from "react";
+import React, { lazy, Suspense, useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Layout from "../../components/Dashboard/Layout";
 import SearchInput from "../../components/SearchInput";
-import CoursesList from "../../components/Courses/CoursesList";
-import Categories from "../../components/Courses/Categories";
+import useGetAllCategories from "../../hooks/useGetAllCategories";
 import useGetAllCourses from "../../hooks/useGetAllCourses";
-import { mockSearchCourses } from "../../constants/mockData";
+import { getCourses } from "../../features/lms/getCourses";
 
-export default function Search() {
-  const courses = useGetAllCourses();
-  const filteredCourses = courses.filter(
-    (course) => Array.isArray(course.chapters) && course.chapters.length > 0
+const CoursesList = lazy(() => import("../../components/Courses/CoursesList"));
+
+export default function Search({ currentUser }) {
+  const userId = currentUser?.uid;
+
+  const [title, setTitle] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [gradeLevel, setGradeLevel] = useState("");
+  const [subject, setSubject] = useState("");
+  const [hidePurchased, setHidePurchased] = useState(false);
+
+  const { categories = [] } = useGetAllCategories();
+  const { courses: allCourses = [] } = useGetAllCourses();
+
+  const gradeLevels = useMemo(
+    () =>
+      Array.from(
+        new Set(allCourses.map((c) => c.gradeLevel).filter(Boolean))
+      ),
+    [allCourses]
+  );
+  const subjects = useMemo(
+    () =>
+      Array.from(new Set(allCourses.map((c) => c.subject).filter(Boolean))),
+    [allCourses]
   );
 
-  const handleSearch = (searchTerm) => {
-    console.log("Searching for:", searchTerm);
-    // Here you can handle the search logic, such as filtering data
-  };
+  const {
+    data: courses = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: [
+      "searchCourses",
+      userId,
+      title,
+      categoryId,
+      gradeLevel,
+      subject,
+      hidePurchased,
+    ],
+    queryFn: () =>
+      getCourses({
+        userId,
+        title,
+        categoryId,
+        gradeLevel,
+        subject,
+        hidePurchased,
+      }),
+    staleTime: 30 * 1000,
+  });
 
-  const categories = [
-    { id: 1, name: "Development" },
-    { id: 2, name: "Business" },
-    { id: 3, name: "Finance" },
-    { id: 4, name: "Design" },
-  ];
-
+  if (error) return <div>Error: {error.message}</div>;
 
   return (
     <Layout>
-      <div className="px-6 pt-6 md:hidden md:mb-0 block">
-        <SearchInput onSearch={handleSearch} />
+      <div className="px-6 pt-6 space-y-3">
+        <SearchInput onSearch={setTitle} />
+        <div className="flex flex-wrap gap-3">
+          <select
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+            className="px-3 py-2 border rounded-md text-sm bg-white"
+          >
+            <option value="">All categories</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+          <select
+            value={gradeLevel}
+            onChange={(e) => setGradeLevel(e.target.value)}
+            className="px-3 py-2 border rounded-md text-sm bg-white"
+          >
+            <option value="">All grades</option>
+            {gradeLevels.map((g) => (
+              <option key={g} value={g}>
+                {g}
+              </option>
+            ))}
+          </select>
+          <select
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+            className="px-3 py-2 border rounded-md text-sm bg-white"
+          >
+            <option value="">All subjects</option>
+            {subjects.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+          {userId && (
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={hidePurchased}
+                onChange={(e) => setHidePurchased(e.target.checked)}
+              />
+              Hide purchased
+            </label>
+          )}
+        </div>
       </div>
       <div className="p-6 space-y-4">
-        <Categories items={categories} />
-        {(courses.length > 0 && process.env.NODE_ENV === "development") && <CoursesList items={filteredCourses} />}
-        <CoursesList items={mockSearchCourses} />
+        {isLoading ? (
+          <div>Loading...</div>
+        ) : (
+          <Suspense fallback={<div>Loading courses...</div>}>
+            <CoursesList items={courses} />
+          </Suspense>
+        )}
       </div>
     </Layout>
   );

@@ -1,41 +1,34 @@
 import React, { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Checkbox } from "../../Checkbox";
 import Button from "./Button";
-import { db } from "../../../lib/firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { cn } from "../../../utils/helperfunctions";
+import { setChapter } from "../../../features/lms/setChapter";
 
 const ChapterAccessForm = ({ initialData, courseId, chapterId }) => {
+  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [isFree, setIsFree] = useState(initialData.isFree || false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const toggleEdit = () => setIsEditing(!isEditing);
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (updates) => setChapter({ courseId, chapterId, updates }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["chapterAdmin", courseId, chapterId],
+      });
+    },
+  });
+
+  const toggleEdit = () => setIsEditing((v) => !v);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setIsSubmitting(true);
     try {
-        const courseRef = doc(db, "courses", courseId);
-        const courseDoc = await getDoc(courseRef);
-        const courseData = courseDoc.data();
-        const chapters = courseData.chapters || [];
-        const chapterIndex = chapters.findIndex(
-          (chapter) => chapter.id === chapterId
-        );
-
-        if (chapterIndex !== -1) {
-          chapters[chapterIndex].isFree = isFree;
-
-          await updateDoc(courseRef, { chapters });
-        }
-      alert("Chapter updated");
+      await mutateAsync({ isFree });
       toggleEdit();
-      window.location.reload(); 
-    } catch {
+    } catch (err) {
+      console.error("[CHAPTER_ACCESS_SAVE]", err);
       alert("Something went wrong");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -77,7 +70,7 @@ const ChapterAccessForm = ({ initialData, courseId, chapterId }) => {
             </div>
           </div>
           <div className="flex items-center gap-x-2">
-            <Button disabled={isSubmitting} type="submit">
+            <Button disabled={isPending} type="submit">
               Save
             </Button>
           </div>

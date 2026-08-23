@@ -1,239 +1,267 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, lazy, Suspense } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import EditInvoice from "./EditInvoice";
 import { sendInvoice } from "../../utils/invoiceFunctions";
-import imgPlaceholder from "./image-placeholder.png";
 import Layout from "../../components/Dashboard/Layout";
 import useGetAllTransactions from "../../hooks/useGetAllTransactions";
+import * as Components from "../../components/all";
+
+const EditInvoice = lazy(() => import("./EditInvoice"));
+const InvoiceDetails = lazy(() => import("../../components/Transactions/InvoiceDetails"));
 
 const InvoiceTransaction = (props) => {
   const { id } = useParams();
   const history = useNavigate();
   const { currentUser } = props;
-  const [transaction, setTransaction] = useState([]);
+  
+  // Fixed: Initialize as null instead of array since we're looking for a single transaction
+  const [transaction, setTransaction] = useState(null);
   const [isTransactionLoaded, setIsTransactionLoaded] = useState(false);
   const [edit, setEdit] = useState(false);
   const [cancelEdit, setCancelEdit] = useState(false);
   const [editedInvoice, setEditedInvoice] = useState({});
   const [loading, setLoading] = useState(true);
-  const transactions = useGetAllTransactions();
+  
+  const { transactions, isLoading, error } = useGetAllTransactions();
 
   useEffect(() => {
-    const getTransaction = async () => {
-      transactions.map((transaction) => {
-        if (transaction._id === id) {
-          setTransaction(transaction);
-          setIsTransactionLoaded(true);
-          setEditedInvoice(transaction);
-        }
-      });
+    const getTransaction = () => {
+      // Fixed: Use find() instead of map() since we're looking for a single transaction
+      const foundTransaction = transactions.find(t => t._id === id);
+      if (foundTransaction) {
+        setTransaction(foundTransaction);
+        setIsTransactionLoaded(true);
+        setEditedInvoice(foundTransaction);
+        setLoading(false);
+      }
     };
-    if (transactions.length > 0) getTransaction();
-  }, [currentUser, transactions, id]);
+    
+    if (transactions.length > 0 && id) {
+      getTransaction();
+    } else if (!isLoading && transactions.length === 0) {
+      setLoading(false);
+    }
+  }, [currentUser, transactions, id, isLoading]);
 
   useEffect(() => {
-    if (cancelEdit) {
+    if (cancelEdit && transaction) {
       setEditedInvoice(transaction);
       setCancelEdit(false);
     }
   }, [cancelEdit, transaction]);
 
-  useEffect(() => {
-    if (!isTransactionLoaded && currentUser) {
-      // Fetch the transaction if not loaded
-    }
-  }, [isTransactionLoaded, currentUser, id, history]);
+  // Handle navigation back to invoice list
+  const handleBackToList = () => {
+    history("/dashboard/admin/invoice/new");
+  };
 
-  if (transaction && currentUser) {
+  // Loading state
+  if (isLoading || loading) {
     return (
       <Layout>
-        <div id="invoice" className="overflow-scroll p-4">
-          {!edit ? (
-            <div
-              id="invoice-ready"
-              className="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6"
-            >
-              <header className="mb-6">
-                <h1 className="text-2xl font-bold mb-4">Invoice</h1>
-                <address className="mb-4">
-                  <p className="mb-2">email@gmail.com (Company E-mail)</p>
-                  <p className="mb-2">
-                    45189, Research Place, Suite 150A (Company Address)
-                  </p>
-                  <p className="mb-2">
-                    Business Number: 0-808-234-2380 (Company Number)
-                  </p>
-                </address>
-                <span className="block mb-4">
-                  <img
-                    alt="company"
-                    src={imgPlaceholder}
-                    className="h-16 w-16 object-cover"
-                  />
-                </span>
-              </header>
-              <article className="mb-6">
-                <h1 className="text-xl font-semibold mb-4">Recipient</h1>
-                <address className="mb-4">
-                  <h4 className="font-semibold">
-                    {currentUser.username || "Sample Name"} (Client Name)
-                  </h4>
-                  <p className="mb-2">
-                    {currentUser.email || "Sample E-mail"} (Client E-mail)
-                  </p>
-                  <p className="mb-2">
-                    {currentUser.address || "Sample Address"} (Client Address)
-                  </p>
-                  <p className="mb-2">
-                    {currentUser.phone || "Sample Number"} (Client Number)
-                  </p>
-                </address>
-                <table className="meta mb-6 w-full text-left">
-                  <tbody>
-                    <tr>
-                      <th className="py-2 pr-4">Invoice #</th>
-                      <td className="py-2">{transaction.id}</td>
-                    </tr>
-                    <tr>
-                      <th className="py-2 pr-4">Date Availed</th>
-                      <td className="py-2">
-                        {transaction.manualDateAdded ||
-                          new Date(transaction.createdAt).toLocaleDateString()}
-                      </td>
-                    </tr>
-                    <tr>
-                      <th className="py-2 pr-4">Amount Due</th>
-                      <td className="py-2">${transaction.cart.total_price}</td>
-                    </tr>
-                  </tbody>
-                </table>
-                <table style={{ width: "auto" }} className="inventory w-full text-left mb-6">
-                  <thead className="bg-gray-200">
-                    <tr>
-                      <th className="py-2 px-4">S. No</th>
-                      <th className="py-2 px-4">ID</th>
-                      <th className="py-2 px-4">Description</th>
-                      <th className="py-2 px-4">Qty</th>
-                      <th className="py-2 px-4">Rate Per Qty</th>
-                      <th className="py-2 px-4">Amount</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {transaction.cart.items.map((item, index) => (
-                      <tr key={item._id} className="border-t">
-                        <td className="py-2 px-4">{index + 1}</td>
-                        <td className="py-2 px-4">{item._id}</td>
-                        <td className="py-2 px-4">
-                          {item.description || "Static Description"} {item.name}
-                        </td>
-                        <td className="py-2 px-4">{item.qty}</td>
-                        <td className="py-2 px-4">${item.price}</td>
-                        <td className="py-2 px-4">
-                          ${(item.price * item.qty).toFixed(2)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <table className="sign w-full text-left mb-6">
-                  <tbody>
-                    <tr>
-                      <td className="py-2">
-                        Signature Here
-                        <br />
-                        <img
-                          src={imgPlaceholder}
-                          alt="signature"
-                          className="h-16 w-16 object-cover"
-                        />
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-                <table className="balance w-full text-left">
-                  <tbody>
-                    <tr>
-                      <th className="py-2 pr-4">Total</th>
-                      <td className="py-2">${transaction.cart.total_price}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </article>
-              <aside className="mb-6">
-                <h1 className="text-xl font-semibold mb-4">Additional Notes</h1>
-                <div>
-                  <p>
-                    We offer a limited 10-day refund policy and a 30-day
-                    workmanship warranty on all of our services. For more
-                    details, please read our refund policy below.
-                  </p>
-                </div>
-              </aside>
-              {currentUser.isAdmin && (
-                <>
-                  <div className="text-center mb-4">
-                    <button
-                      className="btn btn-warning"
-                      onClick={() => setEdit(true)}
-                    >
-                      Edit
-                    </button>
-                  </div>
-                  <div className="text-center mb-4">
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => {
-                        sendInvoice({
-                          transactionId: id,
-                          userId: transaction.user._id,
-                          history,
-                          currentInvoice: transaction,
-                          status: currentUser.isAdmin ? "completed" : "pending",
-                        });
-                      }}
-                    >
-                      Send Invoice
-                    </button>
-                  </div>
-                </>
-              )}
-              {!currentUser.isAdmin && (
-                <div className="text-center mb-4">
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => {
-                      history(`/dashboard/transaction/${id}`);
-                    }}
-                  >
-                    Return
-                  </button>
-                </div>
-              )}
+        <div className="p-4 flex-1 flex flex-col h-full overflow-auto">
+          <div className="relative flex bg-white py-8 px-8 items-center justify-center rounded-md shadow">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F38315] mx-auto mb-4"></div>
+              <Components.SubHeading className="!text-2xl mb-2">
+                Loading Invoice...
+              </Components.SubHeading>
+              <Components.Paragraph className="text-gray-600">
+                Please wait while we fetch your invoice details
+              </Components.Paragraph>
             </div>
-          ) : (
-            <EditInvoice
-              {...props}
-              setEdit={setEdit}
-              editedInvoice={editedInvoice}
-              setEditedInvoice={setEditedInvoice}
-              setCancelEdit={setCancelEdit}
-              setLoading={setLoading}
-              transaction={transaction}
-              setIsTransactionLoaded={setIsTransactionLoaded}
-            />
-          )}
+          </div>
         </div>
       </Layout>
     );
-  } else {
+  }
+
+  // Error state
+  if (error) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="spinner-border" role="status">
-          <span className="visually-hidden">Loading...</span>
+      <Layout>
+        <div className="p-4 flex-1 flex flex-col h-full overflow-auto">
+          <div className="relative flex bg-white py-8 px-8 items-center justify-center rounded-md shadow">
+            <div className="text-center">
+              <svg className="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <Components.SubHeading className="!text-2xl text-red-600 mb-2">
+                Error Loading Invoice
+              </Components.SubHeading>
+              <Components.Paragraph className="text-gray-600 mb-4">
+                {error.message}
+              </Components.Paragraph>
+              <button
+                onClick={handleBackToList}
+                className="px-6 py-3 bg-[#F38315] text-white rounded-md hover:bg-[#e57309] transition-colors font-medium"
+              >
+                Back to Invoices
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      </Layout>
     );
   }
+
+  // Invoice not found state
+  if (!transaction && !isLoading) {
+    return (
+      <Layout>
+        <div className="p-4 flex-1 flex flex-col h-full overflow-auto">
+          <div className="relative flex bg-white py-8 px-8 items-center justify-center rounded-md shadow">
+            <div className="text-center">
+              <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <Components.SubHeading className="!text-2xl text-gray-500 mb-2">
+                Invoice Not Found
+              </Components.SubHeading>
+              <Components.Paragraph className="text-gray-400 mb-4">
+                The invoice with ID "{id}" could not be found. It may have been deleted or the ID is incorrect.
+              </Components.Paragraph>
+              <button
+                onClick={handleBackToList}
+                className="px-6 py-3 bg-[#F38315] text-white rounded-md hover:bg-[#e57309] transition-colors font-medium"
+              >
+                Back to Invoices
+              </button>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  // User access check
+  if (!currentUser) {
+    return (
+      <Layout>
+        <div className="p-4 flex-1 flex flex-col h-full overflow-auto">
+          <div className="relative flex bg-white py-8 px-8 items-center justify-center rounded-md shadow">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F38315] mx-auto mb-4"></div>
+              <Components.SubHeading className="!text-2xl">
+                Authenticating...
+              </Components.SubHeading>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Main content
+  return (
+    <Layout>
+      <div className="p-4 flex-1 flex flex-col h-full overflow-auto">
+        {/* Header Section */}
+        <div className="relative flex bg-white py-6 px-8 items-center rounded-md shadow mb-6">
+          <div className="flex items-center justify-between w-full">
+            <div className="flex flex-col items-start">
+              <Components.SubHeading className="!text-3xl mb-2">
+                Invoice <span className="text-[#F38315]">#{transaction._id?.slice(-8)}</span>
+              </Components.SubHeading>
+              <Components.Paragraph className="!font-[Grandstander] text-gray-600">
+                {edit ? "Edit invoice details and items" : "View invoice details and manage"}
+              </Components.Paragraph>
+            </div>
+
+            {/* Header Actions */}
+            <div className="flex items-center space-x-3">
+              {edit && (
+                <button
+                  onClick={() => setEdit(false)}
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors font-medium"
+                >
+                  Cancel Edit
+                </button>
+              )}
+              <button
+                onClick={handleBackToList}
+                className="px-4 py-2 bg-[#F38315] text-white rounded-md hover:bg-[#e57309] transition-colors font-medium flex items-center"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Invoices
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mode Toggle */}
+        {!edit && (
+          <div className="mb-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 text-blue-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div>
+                    <h3 className="text-sm font-medium text-blue-800">Invoice View Mode</h3>
+                    <p className="text-sm text-blue-700">
+                      You're currently viewing the invoice. Click Edit to make changes.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setEdit(true)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+                >
+                  Edit Invoice
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Content Container */}
+        <div className="bg-white rounded-md shadow flex-1 overflow-auto">
+          {!edit ? (
+            <Suspense fallback={
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F38315] mx-auto mb-4"></div>
+                  <Components.Paragraph>Loading invoice details...</Components.Paragraph>
+                </div>
+              </div>
+            }>
+              <InvoiceDetails
+                transaction={transaction}
+                currentUser={currentUser}
+                setEdit={setEdit}
+                sendInvoice={sendInvoice}
+                history={history}
+                id={id}
+              />
+            </Suspense>
+          ) : (
+            <Suspense fallback={
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F38315] mx-auto mb-4"></div>
+                  <Components.Paragraph>Loading edit form...</Components.Paragraph>
+                </div>
+              </div>
+            }>
+              <EditInvoice
+                {...props}
+                setEdit={setEdit}
+                editedInvoice={editedInvoice}
+                setEditedInvoice={setEditedInvoice}
+                setCancelEdit={setCancelEdit}
+                setLoading={setLoading}
+                transaction={transaction}
+                setIsTransactionLoaded={setIsTransactionLoaded}
+              />
+            </Suspense>
+          )}
+        </div>
+      </div>
+    </Layout>
+  );
 };
 
 export default InvoiceTransaction;

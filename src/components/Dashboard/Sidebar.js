@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import logo from "../../assets/logo1.png";
 import { useNavigate } from "react-router-dom";
 import useUserData from "../../hooks/useUserData";
 import Dashboard from "../Icons/Dashboard";
@@ -10,12 +9,16 @@ import { VscFeedback } from "react-icons/vsc";
 import { GiArchiveResearch } from "react-icons/gi";
 import { FaLayerGroup } from "react-icons/fa";
 import { IoIosCreate } from "react-icons/io";
-import { MdAssignmentAdd } from "react-icons/md";
+import { MdAssignmentAdd, MdRateReview, MdOutlineRateReview, MdGroups } from "react-icons/md";
+import { FaChartBar } from "react-icons/fa";
 import { RiPassPendingFill } from "react-icons/ri";
+import LazyLoad from "react-lazyload";
+  
+const logo = "https://d10grw5om5v513.cloudfront.net/assets/images/logo1.png";
 
 export default function Sidebar({ page, setPage }) {
   const navigate = useNavigate();
-  const { currentUser } = useUserData();
+  const { currentUser, user, loading } = useUserData();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [active, setActive] = useState("Dashboard");
   const isAdmin = currentUser?.isAdmin;
@@ -30,6 +33,7 @@ export default function Sidebar({ page, setPage }) {
     { name: "Suggestions", icon: <VscFeedback page="suggestions" />, path: "/dashboard/suggestions" },
     { name: "Create Zoom", icon: <BiLogoZoom page="zoom" />, path: "/dashboard/zoom" },
     { name: "My Zoom-Sessions", icon: <BiLogoZoom page="zoom" />, path: "/dashboard/zoom/mymeetings" },
+    { name: "Peer Assignments", icon: <MdRateReview />, path: "/dashboard/peer-learning/teacher/assignments" },
   ];
 
   const studentRoutes = [
@@ -43,25 +47,24 @@ export default function Sidebar({ page, setPage }) {
     // { name: "Suggestions", icon: <VscFeedback page="suggestions" />, path: "/dashboard/suggestions" },
     { name: "Create Zoom", icon: <BiLogoZoom page="zoom" />, path: "/dashboard/zoom" },
     { name: "My Zoom-Sessions", icon: <BiLogoZoom page="zoom" />, path: "/dashboard/zoom/mymeetings" },
+    { name: "Peer Learning", icon: <MdGroups />, path: "/dashboard/peer-learning" },
+    { name: "My Peer Results", icon: <FaChartBar />, path: "/dashboard/peer-learning/my-results" },
     // { name: "Thank You", icon: <GiHeartBeats page="thankyou" />, path: "/dashboard/thankyou" },
   ];
   
   const adminRoutes = [
     { name: "Dashboard", icon: <RiPassPendingFill />, path: "/dashboard" },
-    { name: "All Courses", icon: <RiPassPendingFill />, path: "/dashboard/courses/browse" },
-    { name: "Teacher Courses", icon: <RiPassPendingFill />, path: "/dashboard/teacher/courses" },
-    { name: "Create Course", icon: <IoIosCreate />, path: "/dashboard/admin/course/new" },
-    { name: "Assign Teacher", icon: <MdAssignmentAdd page="assigncourse" />, path: "/dashboard/admin/course/assign" },
-    { name: "Assign Student", icon: <MdAssignmentAdd page="assigncourse" />, path: "/dashboard/admin/student/course/assign" },
-    { name: "Pending Courses", icon: <RiPassPendingFill />, path: "/dashboard/admin/courses/pending" },
-    { name: "Delete Courses", icon: <RiPassPendingFill />, path: "/dashboard/admin/courses/delete" },
-    { name: "Create Invoice", icon: <RiPassPendingFill />, path: "/dashboard/admin/invoice/new" },
-    { name: "View Invoices", icon: <RiPassPendingFill />, path: "/dashboard/admin/invoices/all" },
-    { name: "User Profile", icon: <RiPassPendingFill />, path: "/dashboard/profile" },
+    { name: "View All Courses", icon: <RiPassPendingFill />, path: "/dashboard/courses/browse" },
+    { name: "Manage Analytics", icon: <MdAssignmentAdd />, path: "/dashboard/admin/analytics" },
+    { name: "Manage Courses", icon: <IoIosCreate />, path: "/dashboard/admin/management/courses" },
+    { name: "Manage Invoices", icon: <RiPassPendingFill />, path: "/dashboard/admin/management/invoices" },
+    { name: "Managem Users", icon: <RiPassPendingFill />, path: "/dashboard/admin/management/users" },
+    { name: "My Profile", icon: <RiPassPendingFill />, path: "/dashboard/profile" },
     { name: "Create Zoom", icon: <BiLogoZoom page="zoom" />, path: "/dashboard/zoom" },
     { name: "My Zoom-Sessions", icon: <BiLogoZoom page="zoom" />, path: "/dashboard/zoom/mymeetings" },
     { name: "Assesments", icon: <Assessments page="assessments" />, path: "/dashboard/assesment" },
     { name: "Suggestions", icon: <RiPassPendingFill />, path: "/dashboard/suggestions" },
+    { name: "Peer Assignments", icon: <MdOutlineRateReview />, path: "/dashboard/peer-learning/teacher/assignments" },
 ];
 
   const routes = isAdmin
@@ -89,7 +92,9 @@ export default function Sidebar({ page, setPage }) {
           isMobileOpen ? "fixed inset-0 z-50" : "hidden md:flex"
         } overflow-auto`}
       >
-        <img src={logo} alt="" className="h-20 mb-6" />
+        <LazyLoad height={80} offset={100} once>
+          <img loading="lazy" src={logo} alt="" className="h-20 mb-6" />
+        </LazyLoad>
         {routes.map((route) => (
           <div
             key={route.name}
